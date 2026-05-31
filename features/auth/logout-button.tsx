@@ -4,7 +4,12 @@ import { logout } from "@/features/auth/actions";
 export const LogoutButton = () => {
   return (
     <form action={logout}>
-      <button type="submit">Se déconnecter</button>
+      <button
+        type="submit"
+        className="text-sm font-medium text-destructive hover:underline"
+      >
+        Se déconnecter
+      </button>
     </form>
   );
 };

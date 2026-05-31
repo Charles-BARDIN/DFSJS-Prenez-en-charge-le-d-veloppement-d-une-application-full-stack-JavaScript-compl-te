@@ -20,6 +20,10 @@ export default auth((req) => {
 });
 
 export const config = {
-  // Exclut les endpoints d'API (dont Auth.js), les fichiers statiques et les images.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // Exclut les endpoints d'API (dont Auth.js), les fichiers internes de Next et
+  // les fichiers statiques du dossier public (images, etc.) pour ne pas les
+  // soumettre à la redirection d'authentification.
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)",
+  ],
 };
