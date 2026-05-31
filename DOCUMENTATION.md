@@ -331,6 +331,7 @@ Décrivez les tâches confiées à l'IA ou à des collaborateurs juniors, et com
 | Tâche déléguée | Outil / collaborateur | Objectif | Vérification effectuée |
 | :---- | :---- | :---- | :---- |
 | Génération du script de seed des thèmes (`prisma/seed.ts`) | Claude | Gagner du temps sur une tâche répétitive (insertion des thèmes initiaux, sans back-office) | Relu le code (upsert idempotent sur `title`), exécuté `prisma db seed` puis vérifié en base que les 7 thèmes étaient bien présents (`SELECT title FROM "Topic"`). Ajusté la liste et les descriptions des thèmes. |
+| Génération des schémas de validation Zod (`lib/validations.ts`) | Claude | Gagner du temps sur la traduction des règles métier en schémas (mot de passe, inscription, connexion, profil, article, commentaire) | Relu chaque règle au regard des spécifications fonctionnelles (notamment la règle du mot de passe : ≥ 8 caractères avec chiffre, minuscule, majuscule et caractère spécial). Validé le typage (`tsc --noEmit`) ; bornes complémentaires (longueur des champs) définies manuellement. Tests unitaires prévus à l'étape de tests. |
 
 ---
 
