@@ -20,3 +20,11 @@ export const getTopicsWithSubscription = async (userId: string) => {
     isSubscribed: subscriptions.length > 0,
   }));
 };
+
+/** Liste légère des thèmes (id + titre), pour les sélecteurs de formulaire. */
+export const getTopicList = () => {
+  return prisma.topic.findMany({
+    orderBy: { title: "asc" },
+    select: { id: true, title: true },
+  });
+};
