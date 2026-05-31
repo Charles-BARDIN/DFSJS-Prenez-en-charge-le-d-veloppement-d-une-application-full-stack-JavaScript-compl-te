@@ -8,9 +8,11 @@ const NewArticlePage = async () => {
   const topics = await getTopicList();
 
   return (
-    <main>
-      <BackButton href="/feed" />
-      <h1>Créer un nouvel article</h1>
+    <main className="mx-auto max-w-2xl px-4 py-8">
+      <BackButton href="/feed" className="mb-4" />
+      <h1 className="mb-6 text-center text-2xl font-bold">
+        Créer un nouvel article
+      </h1>
       <ArticleForm topics={topics} />
     </main>
   );
