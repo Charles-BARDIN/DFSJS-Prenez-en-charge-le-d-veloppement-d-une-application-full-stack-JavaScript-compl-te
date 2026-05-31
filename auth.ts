@@ -1,10 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 
-import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/lib/validations";
 import { authConfig } from "@/auth.config";
+import { authorize } from "@/features/auth/authorize";
 
 /**
  * Instance complète Auth.js (NextAuth v5).
@@ -20,26 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         identifier: {},
         password: {},
       },
-      authorize: async (credentials) => {
-        const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) return null;
-
-        const { identifier, password } = parsed.data;
-
-        // L'identifiant peut être l'e-mail ou le nom d'utilisateur.
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [{ email: identifier }, { username: identifier }],
-          },
-        });
-        if (!user) return null;
-
-        const passwordMatches = await bcrypt.compare(password, user.password);
-        if (!passwordMatches) return null;
-
-        // Les données retournées alimentent le token JWT (callbacks ci-dessus).
-        return { id: user.id, email: user.email, name: user.username };
-      },
+      authorize,
     }),
   ],
 });
