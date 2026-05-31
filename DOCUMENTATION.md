@@ -315,12 +315,15 @@ Audit réalisé avec **Lighthouse 13.0.2** (DevTools Chrome) sur le build de pro
 
 Les deux pages obtiennent **100/100 en Performance, Accessibilité et SEO**, et **96/100 en Bonnes pratiques**. Ces résultats valident les choix d'optimisation décrits ci-dessus : rendu serveur limitant le JavaScript client, police et images optimisées (pas de décalage de mise en page ni de ressources bloquantes) et bonnes pratiques d'accessibilité (libellés ARIA, titres et descriptions des composants interactifs, contrastes). Les rapports complets sont joints en annexe (§ 5).
 
+**Analyse du 96/100 en Bonnes pratiques.** Le seul point retiré provient de l'audit *« Issues were logged in the Issues panel in Chrome DevTools »*, dont l'unique entrée est de type **« Content Security Policy »** : l'application ne définit pas d'en-tête **CSP**, que Chrome signale comme protection recommandée contre les attaques XSS. C'est un **durcissement de sécurité supplémentaire**, distinct des protections déjà en place (cf. § 3.3) ; son absence n'introduit pas de faille mais prive d'une défense en profondeur côté navigateur. **Correctif possible :** définir un en-tête `Content-Security-Policy` (via `headers()` dans `next.config` ou le *proxy*), idéalement avec un *nonce* pour les scripts. Ce réglage n'a pas été activé dans le périmètre du MVP (il demande un paramétrage et des tests pour ne pas casser le chargement des ressources) et constitue un axe d'amélioration identifié.
+
 > Procédure de reproduction : `npm run build` puis `npm run start`, se connecter, puis lancer Lighthouse (onglet *Lighthouse* des DevTools Chrome, ou `npx lighthouse <url>`) sur la page voulue.
 
 #### Points de vigilance et axes d'amélioration
 
 * **Pagination du fil** : actuellement tous les articles des thèmes suivis sont chargés ; une pagination (ou un défilement infini) sera nécessaire à mesure que le volume d'articles augmente.
 * **Mise en cache des données partagées** : les pages personnalisées sont aujourd'hui rendues dynamiquement (lecture de session). Pour réduire les accès en base, les données **non personnalisées** (liste des thèmes, contenu des articles) pourraient être mises en cache avec revalidation, tout en gardant la partie par-utilisateur (abonnements, fil) dynamique. Tout cache manuel de données par-utilisateur devrait alors rester clé par `userId` (garde-fou de sécurité, cf. § 3.3).
+* **En-tête Content-Security-Policy** : ajouter une CSP (idéalement avec *nonce*) constituerait un durcissement de sécurité côté navigateur ; c'est le seul point retiré par Lighthouse (cf. analyse ci-dessus), non activé dans le périmètre du MVP.
 * **PPR / `next/dynamic`** : le *Partial Prerendering* et le découpage de code à la demande restent des optimisations possibles ; l'audit actuel (100/100) ne les rend pas nécessaires à ce stade, mais ils pourront être utiles si le volume de contenu et d'interactivité croît.
 
 ### **3.3 Revue technique**
