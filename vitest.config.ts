@@ -11,16 +11,25 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      // On mesure la couverture de notre code applicatif uniquement.
-      include: ["app/**", "features/**", "lib/**", "auth.ts", "auth.config.ts"],
-      // Exclusions : composants générés (shadcn), config et données de test.
-      exclude: [
-        "components/ui/**",
-        "**/*.config.*",
-        "prisma/**",
-        "**/layout.tsx",
-        "app/**/not-found.tsx",
+      // Périmètre : la logique métier testable unitairement (Server Actions de
+      // mutation, validations, autorisation, transformation des thèmes, helpers).
+      include: [
+        "features/articles/actions.ts",
+        "features/comments/actions.ts",
+        "features/profile/actions.ts",
+        "features/themes/actions.ts",
+        "features/themes/queries.ts",
+        "features/auth/authorize.ts",
+        "features/articles/format.ts",
+        "lib/validations.ts",
+        "lib/action-result.ts",
       ],
+      thresholds: {
+        statements: 85,
+        branches: 80,
+        functions: 85,
+        lines: 85,
+      },
     },
   },
 });
