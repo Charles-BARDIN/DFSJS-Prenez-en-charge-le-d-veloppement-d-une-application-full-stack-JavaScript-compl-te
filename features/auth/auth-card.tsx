@@ -2,8 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-
 type AuthCardProps = {
   title: string;
   children: React.ReactNode;
@@ -11,7 +9,7 @@ type AuthCardProps = {
 };
 
 // Mise en page commune aux écrans de connexion et d'inscription :
-// flèche de retour, logo, titre, contenu (formulaire) et pied de carte.
+// flèche de retour, logo, titre, formulaire et pied de page, centrés.
 export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-10">
@@ -25,25 +23,23 @@ export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
           Retour
         </Link>
 
-        <Card>
-          <CardContent className="space-y-6">
-            <div className="flex flex-col items-center gap-4">
-              <Image
-                src="/logo.png"
-                alt="MDD"
-                width={695}
-                height={401}
-                priority
-                className="h-14 w-auto"
-              />
-              <h1 className="text-xl font-semibold">{title}</h1>
-            </div>
+        <div className="space-y-6">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/logo.png"
+              alt="MDD"
+              width={695}
+              height={401}
+              priority
+              className="h-14 w-auto"
+            />
+            <h1 className="text-xl font-semibold">{title}</h1>
+          </div>
 
-            {children}
+          {children}
 
-            <p className="text-center text-sm text-muted-foreground">{footer}</p>
-          </CardContent>
-        </Card>
+          <p className="text-center text-sm text-muted-foreground">{footer}</p>
+        </div>
       </div>
     </main>
   );

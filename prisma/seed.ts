@@ -42,6 +42,11 @@ const topics = [
     description:
       "Intégration et déploiement continus, conteneurs et automatisation.",
   },
+  {
+    title: "Architecture logicielle",
+    description:
+      "L'architecture logicielle regroupe l'ensemble des décisions structurantes d'un projet : découpage en modules, séparation des responsabilités, choix des frontières entre couches et gestion des dépendances. Elle couvre aussi bien les patterns classiques (MVC, hexagonal, clean architecture) que les principes fondamentaux comme SOLID, l'inversion de dépendances ou la séparation des préoccupations. Une bonne architecture facilite la maintenance, les tests et l'évolution du code sur le long terme, tout en limitant la dette technique. Ce thème aborde la modélisation, les compromis entre simplicité et flexibilité, ainsi que les stratégies de montée en charge des applications modernes.",
+  },
 ];
 
 async function main() {
