@@ -320,7 +320,7 @@ Les deux pages obtiennent **100/100 en Performance, Accessibilité et SEO**, et 
 #### Points de vigilance et axes d'amélioration
 
 * **Pagination du fil** : actuellement tous les articles des thèmes suivis sont chargés ; une pagination (ou un défilement infini) sera nécessaire à mesure que le volume d'articles augmente.
-* **Données par-utilisateur non mises en cache** : les pages personnalisées sont rendues dynamiquement (lecture de session) ; un cache par `userId` pourrait être introduit si la charge le justifie.
+* **Mise en cache des données partagées** : les pages personnalisées sont aujourd'hui rendues dynamiquement (lecture de session). Pour réduire les accès en base, les données **non personnalisées** (liste des thèmes, contenu des articles) pourraient être mises en cache avec revalidation, tout en gardant la partie par-utilisateur (abonnements, fil) dynamique. Tout cache manuel de données par-utilisateur devrait alors rester clé par `userId` (garde-fou de sécurité, cf. § 3.3).
 * **PPR / `next/dynamic`** : le *Partial Prerendering* et le découpage de code à la demande restent des optimisations possibles ; l'audit actuel (100/100) ne les rend pas nécessaires à ce stade, mais ils pourront être utiles si le volume de contenu et d'interactivité croît.
 
 ### **3.3 Revue technique**
