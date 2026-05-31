@@ -69,7 +69,7 @@ MDD est une application **full-stack Next.js (App Router)** : le même projet h�
 * **Client Components** (`'use client'`) : pages interactives et formulaires, exécutés dans le navigateur ;
 * **Server Components** : rendu côté serveur des pages de lecture (fil, thèmes, profil), sans JavaScript inutile envoyé au client ;
 * **Server Actions** (`'use server'`) : point d'entrée de la logique métier (« l'API »). Chaque action valide ses entrées avec **Zod** et vérifie la **session** avant toute opération ;
-* **Auth.js v5** : authentification et session (JWT), protection des routes via le middleware ;
+* **Auth.js v5** : authentification et session (JWT), protection des routes via le *proxy* Next.js (`proxy.ts`) ;
 * **Prisma ORM → PostgreSQL** : accès aux données typé.
 
 ```mermaid
@@ -151,7 +151,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 
 **Auth.js v5 — Credentials + JWT** *(vs auth maison jose+cookies, Lucia, Clerk/Auth0, Supabase Auth, Better Auth)*
 
-* *Avantages :* librairie auditée qui gère les points sensibles (signature et rotation des tokens, protection CSRF, cookies `httpOnly`/`secure`, callbacks), middleware de protection des routes, intégration Next.js native.
+* *Avantages :* librairie auditée qui gère les points sensibles (signature et rotation des tokens, protection CSRF, cookies `httpOnly`/`secure`, callbacks), protection des routes via le *proxy*, intégration Next.js native.
 * *Inconvénients :* API v5 récente et documentation Credentials moins fournie que pour les providers OAuth ; comportement « boîte noire » à comprendre pour le défendre ; révocation de session moins immédiate qu'avec des sessions en base (un JWT reste valide jusqu'à son expiration).
 * *Pourquoi ce choix :* on ne réimplémente pas soi-même la sécurité (source d'erreurs). La stratégie **JWT** (cookie signé) assure la persistance entre sessions **sans table ni store serveur** → modèle et infrastructure allégés, cohérent avec la consigne « ne pas surcomplexifier la sécurité ». Le provider **Credentials** correspond au besoin (e-mail/nom d'utilisateur + mot de passe, pas d'OAuth tiers). Les solutions SaaS (Clerk, Auth0) sont écartées (dépendance externe et données utilisateurs hors de notre base pour un simple MVP interne) ; une auth maison ou Lucia donnerait plus de contrôle mais beaucoup plus de code de sécurité à écrire et à défendre.
 * *Note :* pour la révocation, on peut maintenir des durées de session courtes ; passer à des sessions en base reste une évolution possible si une révocation immédiate devient nécessaire.
@@ -312,7 +312,7 @@ Synthèse critique du code à l'issue du développement et des tests.
 * **Données protégées** : mots de passe hachés (bcryptjs), messages d'erreur d'authentification génériques (ne divulguent pas l'existence d'un compte), secrets et connexion BDD jamais exposés au client (Server Components / Server Actions).
 * **Cache multi-utilisateur maîtrisé** : les pages personnalisées (ex. `/themes` avec l'état d'abonnement) sont rendues dynamiquement car `auth()` lit la session → aucune fuite de données via le *Full Route Cache* ; règle retenue : tout cache manuel de données par-utilisateur doit être clé par `userId`.
 * **Architecture lisible** : découpage *feature-based* (`features/<domaine>`) et séparation nette Server / Client Components (lecture en RSC, interactif isolé côté client).
-* **Compatibilité runtime** : configuration Auth.js scindée (`auth.config.ts` compatible *edge* pour le middleware + `auth.ts` complet côté Node).
+* **Compatibilité runtime** : configuration Auth.js scindée (`auth.config.ts` compatible *edge* pour le *proxy* + `auth.ts` complet côté Node).
 * **Testabilité** : la logique d'autorisation est extraite dans `features/auth/authorize.ts` pour être testée isolément ; couverture ciblée sur la logique métier complétée par des tests end-to-end sur les parcours.
 
 **Points à améliorer / dette technique**
