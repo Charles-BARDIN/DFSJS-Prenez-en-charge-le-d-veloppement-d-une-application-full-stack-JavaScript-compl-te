@@ -330,8 +330,7 @@ Décrivez les tâches confiées à l'IA ou à des collaborateurs juniors, et com
 
 | Tâche déléguée | Outil / collaborateur | Objectif | Vérification effectuée |
 | :---- | :---- | :---- | :---- |
-| Ex : Génération de schémas Zod | ChatGPT / Copilot | Gain de temps sur la validation | Revue des règles de validation et tests manuels |
-|  |  |  |  |
+| Génération du script de seed des thèmes (`prisma/seed.ts`) | Claude | Gagner du temps sur une tâche répétitive (insertion des thèmes initiaux, sans back-office) | Relu le code (upsert idempotent sur `title`), exécuté `prisma db seed` puis vérifié en base que les 7 thèmes étaient bien présents (`SELECT title FROM "Topic"`). Ajusté la liste et les descriptions des thèmes. |
 
 ---
 
