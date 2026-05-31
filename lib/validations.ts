@@ -76,9 +76,3 @@ export const createCommentSchema = z.object({
     .min(1, "Le commentaire ne peut pas être vide.")
     .max(1000, "Le commentaire ne doit pas dépasser 1000 caractères."),
 });
-
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
-export type CreateArticleInput = z.infer<typeof createArticleSchema>;
-export type CreateCommentInput = z.infer<typeof createCommentSchema>;
