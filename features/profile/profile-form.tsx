@@ -2,7 +2,9 @@
 
 import { useActionState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { updateProfile } from "@/features/profile/actions";
+import { FormField } from "@/features/auth/form-field";
 
 type ProfileFormProps = {
   email: string;
@@ -19,31 +21,46 @@ export const ProfileForm = ({ email, username }: ProfileFormProps) => {
   const success = state?.success ?? false;
 
   return (
-    <form action={formAction}>
-      <label>
-        Nom d&apos;utilisateur
-        <input name="username" type="text" defaultValue={username} required />
-      </label>
-      {fieldErrors?.username ? <p role="alert">{fieldErrors.username}</p> : null}
+    <form action={formAction} className="mx-auto max-w-sm space-y-4">
+      <FormField
+        label="Nom d'utilisateur"
+        name="username"
+        type="text"
+        defaultValue={username}
+        required
+        error={fieldErrors?.username}
+      />
+      <FormField
+        label="Adresse e-mail"
+        name="email"
+        type="email"
+        defaultValue={email}
+        required
+        error={fieldErrors?.email}
+      />
+      <FormField
+        label="Nouveau mot de passe (laisser vide pour ne pas le changer)"
+        name="password"
+        type="password"
+        error={fieldErrors?.password}
+      />
 
-      <label>
-        Adresse e-mail
-        <input name="email" type="email" defaultValue={email} required />
-      </label>
-      {fieldErrors?.email ? <p role="alert">{fieldErrors.email}</p> : null}
+      {globalError ? (
+        <p role="alert" className="text-sm text-destructive">
+          {globalError}
+        </p>
+      ) : null}
+      {success ? (
+        <p role="status" className="text-sm text-primary">
+          Profil mis à jour.
+        </p>
+      ) : null}
 
-      <label>
-        Nouveau mot de passe (laisser vide pour ne pas le changer)
-        <input name="password" type="password" />
-      </label>
-      {fieldErrors?.password ? <p role="alert">{fieldErrors.password}</p> : null}
-
-      {globalError ? <p role="alert">{globalError}</p> : null}
-      {success ? <p role="status">Profil mis à jour.</p> : null}
-
-      <button type="submit" disabled={pending}>
-        Sauvegarder
-      </button>
+      <div className="flex justify-center">
+        <Button type="submit" disabled={pending}>
+          Sauvegarder
+        </Button>
+      </div>
     </form>
   );
 };
