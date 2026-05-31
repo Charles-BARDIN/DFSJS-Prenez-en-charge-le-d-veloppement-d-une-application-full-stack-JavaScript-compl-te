@@ -2,9 +2,9 @@ import { notFound } from "next/navigation";
 
 import { getArticle } from "@/features/articles/queries";
 import { formatDate } from "@/features/articles/format";
+import { CommentForm } from "@/features/comments/comment-form";
 
 // Détail d'un article : thème, titre, auteur, date, contenu et commentaires.
-// Le formulaire d'ajout de commentaire sera ajouté avec la fonctionnalité dédiée.
 const ArticlePage = async ({
   params,
 }: {
@@ -28,6 +28,9 @@ const ArticlePage = async ({
 
       <section aria-label="Commentaires">
         <h2>Commentaires</h2>
+
+        <CommentForm articleId={article.id} />
+
         {article.comments.length === 0 ? (
           <p>Aucun commentaire pour le moment.</p>
         ) : (
