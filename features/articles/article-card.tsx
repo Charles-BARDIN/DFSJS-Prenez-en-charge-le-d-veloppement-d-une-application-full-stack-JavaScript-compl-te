@@ -33,7 +33,7 @@ export const ArticleCard = ({
         <p className="text-sm text-foreground">
           {formatDate(createdAt)} · {authorName} · {topicTitle}
         </p>
-        <ContentCardText className="line-clamp-4">{content}</ContentCardText>
+        <ContentCardText className="line-clamp-5">{content}</ContentCardText>
       </ContentCard>
     </Link>
   );
