@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
 import {
@@ -12,11 +10,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { logout } from "@/features/auth/actions";
+import { LogoutButton } from "@/features/auth/logout-button";
+import { usePathname } from "next/navigation";
 import { NavLinks } from "./nav-links";
+import { AvatarLink } from "./avatar-link";
 
 // Menu de navigation mobile : un panneau latéral ouvert via un bouton « burger ».
-export const MobileNav = ({ username }: { username: string }) => {
+export const MobileNav = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -32,25 +32,19 @@ export const MobileNav = ({ username }: { username: string }) => {
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent className="p-6">
-        <SheetTitle>Menu</SheetTitle>
-        <nav className="mt-6 flex flex-col items-start gap-4">
-          <NavLinks />
-          <Link
-            href="/profile"
-            className="text-sm font-medium hover:text-primary"
-          >
-            Profil ({username})
-          </Link>
-          <form action={logout}>
-            <button
-              type="submit"
-              className="text-sm font-medium text-destructive hover:underline"
-            >
-              Se déconnecter
-            </button>
-          </form>
+      <SheetContent className="flex flex-col p-6">
+        {/* Titre requis pour l'accessibilité, masqué visuellement. */}
+        <SheetTitle className="sr-only">Menu</SheetTitle>
+
+        <nav className="flex flex-col items-start gap-6">
+          <LogoutButton />
+          <NavLinks className="text-xl" />
         </nav>
+
+        {/* L'accès au profil se fait via l'avatar, en bas à droite. */}
+        <div className="mt-auto flex justify-end">
+          <AvatarLink />
+        </div>
       </SheetContent>
     </Sheet>
   );

@@ -11,8 +11,6 @@ export const SiteHeader = async () => {
   const session = await auth();
   if (!session?.user) return null;
 
-  const username = session.user.username;
-
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
@@ -21,13 +19,13 @@ export const SiteHeader = async () => {
         {/* Navigation desktop */}
         <nav className="hidden items-center gap-6 md:flex">
           <LogoutButton />
-          <NavLinks />
+          <NavLinks className="text-sm" />
           <AvatarLink />
         </nav>
 
         {/* Navigation mobile */}
         <div className="md:hidden">
-          <MobileNav username={username} />
+          <MobileNav />
         </div>
       </div>
     </header>
