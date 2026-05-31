@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Schéma Prisma du projet MDD.
+// Documentation : https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -10,13 +10,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO: Define your data models here
-// Example:
-// model User {
-//   id        Int      @id @default(autoincrement())
-//   email     String   @unique
-//   username  String   @unique
-//   password  String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+/// Utilisateur du réseau social.
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String // Haché (bcrypt), jamais stocké en clair.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  articles      Article[]
+  comments      Comment[]
+  subscriptions Subscription[]
+}
+
+/// Thème (sujet) du monde de la programmation. Alimenté par un script de seed (pas de back-office).
+model Topic {
+  id          String   @id @default(cuid())
+  title       String   @unique
+  description String
+  createdAt   DateTime @default(now())
+
+  articles      Article[]
+  subscriptions Subscription[]
+}
+
+/// Abonnement d'un utilisateur à un thème.
+model Subscription {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  // Un utilisateur ne peut s'abonner qu'une seule fois à un thème donné.
+  @@unique([userId, topicId])
+}
+
+/// Article (post) publié par un utilisateur sur un thème.
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  comments Comment[]
+
+  // Index pour le tri chronologique du fil et le filtrage par thème.
+  @@index([createdAt])
+  @@index([topicId])
+}
+
+/// Commentaire associé à un article (non récursif).
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId])
+}
