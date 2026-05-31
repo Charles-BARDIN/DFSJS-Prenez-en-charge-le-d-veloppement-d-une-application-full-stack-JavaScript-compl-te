@@ -340,15 +340,51 @@ Synthèse critique du code à l'issue du développement et des tests.
 
 ### **4.1 FAQ utilisateur**
 
-Rédigez une courte section d'aide destinée aux utilisateurs internes ou finaux. Structurez-la en format **Question / Réponse**.
+Aide destinée aux utilisateurs de MDD, au format **Question / Réponse**.
 
-Q : Comment créer un compte ?
+**Q : Comment créer un compte ?**
 
-R : Cliquez sur "S'inscrire", remplissez le formulaire et validez. Vous serez automatiquement connecté.
+R : Cliquez sur « S'inscrire », renseignez votre adresse e-mail, un nom d'utilisateur et un mot de passe, puis validez. Vous êtes automatiquement connecté et redirigé vers votre fil d'actualité.
 
-Q : Que faire si l'application ne charge pas ?
+**Q : Quelles sont les règles pour le mot de passe ?**
 
-R : Rafraîchissez la page. Si le problème persiste, vérifiez votre connexion ou contactez le support technique.
+R : Il doit contenir au moins 8 caractères, dont au moins un chiffre, une minuscule, une majuscule et un caractère spécial.
+
+**Q : Comment me connecter ?**
+
+R : Sur la page « Se connecter », saisissez **votre e-mail ou votre nom d'utilisateur** (au choix) et votre mot de passe. Votre session reste active jusqu'à la déconnexion.
+
+**Q : Mon fil d'actualité est vide, est-ce normal ?**
+
+R : Oui, le fil n'affiche que les articles des thèmes auxquels vous êtes abonné. Rendez-vous sur la page « Thèmes » pour vous abonner : des articles apparaîtront ensuite dans votre fil.
+
+**Q : Comment m'abonner à un thème ?**
+
+R : Depuis la page « Thèmes », cliquez sur « S'abonner » sur le thème souhaité. Le bouton affiche alors « Déjà abonné ».
+
+**Q : Comment me désabonner d'un thème ?**
+
+R : Le désabonnement se fait depuis votre **profil** : chaque thème suivi y est affiché avec un bouton pour s'en désabonner.
+
+**Q : Comment publier un article ?**
+
+R : Cliquez sur « Créer un article », choisissez un thème, saisissez un titre et le contenu, puis validez. L'article est publié à votre nom et visible par les personnes abonnées à ce thème.
+
+**Q : Comment commenter un article ?**
+
+R : Ouvrez l'article, écrivez votre commentaire dans le champ prévu en bas de page et envoyez-le. Il apparaît immédiatement sous l'article.
+
+**Q : Comment modifier mon profil ?**
+
+R : Accédez à votre profil (icône en forme d'avatar). Vous pouvez y mettre à jour votre e-mail, votre nom d'utilisateur et votre mot de passe.
+
+**Q : Comment me déconnecter ?**
+
+R : Utilisez le bouton « Se déconnecter » (dans l'en-tête sur ordinateur, ou en haut du menu sur mobile).
+
+**Q : L'application ne se charge pas, que faire ?**
+
+R : Rafraîchissez la page. Si le problème persiste, vérifiez votre connexion internet ou contactez le support technique.
 
 ### **4.2 Supervision et tâches déléguées à l'IA**
 
