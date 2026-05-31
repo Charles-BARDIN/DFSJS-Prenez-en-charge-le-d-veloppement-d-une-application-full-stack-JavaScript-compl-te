@@ -272,17 +272,22 @@ Remarques :
 
 ### **3.1 Stratégie de test**
 
-Décrivez les tests mis en place :
+La stratégie repose sur **deux niveaux complémentaires**, chacun ciblant ce qu'il vérifie le mieux :
 
-* **unitaires** (Vitest/Jest), **d'intégration**, **end-to-end** (Playwright/Cypress),
-* frameworks utilisés,
-* taux de couverture.
+* **Tests unitaires / d'intégration (Vitest + React Testing Library).** Ils ciblent la **logique métier** isolément : Server Actions de mutation, schémas de validation Zod, autorisation, transformation des données et helpers, ainsi que quelques composants Client au plus près de l'usage (DOM, accessibilité). L'accès à la base est **simulé** (mock Prisma via `vitest-mock-extended`) pour des tests rapides et déterministes, sans dépendance externe.
+* **Tests end-to-end (Playwright).** Ils exercent les **parcours utilisateur réels** dans un navigateur (Chromium), de l'interface jusqu'à la base de données, sur une **base de test isolée** (conteneur PostgreSQL dédié, distinct de la base de développement) **réinitialisée avant chaque exécution** (`prisma migrate reset` + seed). C'est ce niveau qui valide concrètement la chaîne front → Server Action → Prisma → PostgreSQL.
+
+**Pourquoi ce découpage.** Les Server Actions n'exposant pas d'API REST, il n'y a pas d'endpoint HTTP à tester avec un outil type Supertest (cf. arbitrage § 2.2) : on teste donc la logique métier directement en unitaire, et la chaîne HTTP réelle via Playwright. Le périmètre de **couverture** est volontairement **concentré sur la logique métier** (et non sur les pages ou le code d'authentification, couverts par l'e2e), afin de mesurer ce qui a une réelle valeur de non-régression plutôt qu'un pourcentage global artificiel.
+
+**Commandes.** `npm test` (unitaires), `npm run test:coverage` (couverture), `npm run test:e2e` (end-to-end).
 
 | Type de test | Outil / framework | Portée | Résultats |
 | :---- | :---- | :---- | :---- |
-| Test unitaire | Vitest | Server Actions / Utils |  |
-| Test d'intégration | React Testing Library | Composants Client / Server |  |
-| Test e2e | Playwright | Parcours critiques |  |
+| Test unitaire / intégration | Vitest (+ mock Prisma) | Server Actions, validations Zod, autorisation, helpers | **61 tests** sur 11 fichiers — ✅ tous passants |
+| Test de composant | React Testing Library | Composants Client (carte d'article, formulaire de commentaire) | Inclus dans les 61 tests — ✅ |
+| Test e2e | Playwright (Chromium) | Inscription, connexion/déconnexion, refus de connexion, protection des routes, abonnement à un thème, création + consultation d'un article avec commentaire | **6 scénarios** — ✅ tous passants |
+
+> **Couverture (logique métier).** Seuils exigés via `vitest.config.ts` : statements ≥ 85 %, branches ≥ 80 %, functions ≥ 85 %, lines ≥ 85 %. Le rapport HTML est généré par `npm run test:coverage` (voir annexes, § 5).
 
 ### **3.2 Rapport de performance et optimisation**
 

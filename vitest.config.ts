@@ -8,6 +8,9 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    // Tests unitaires/d'intégration uniquement (*.test.*). Les tests end-to-end
+    // (e2e/*.spec.ts) sont exécutés par Playwright, pas par Vitest.
+    include: ["**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
