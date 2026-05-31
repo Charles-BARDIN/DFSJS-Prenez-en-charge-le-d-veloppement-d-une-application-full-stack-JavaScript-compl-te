@@ -46,17 +46,17 @@ Date : 29/05/2026
 
 ### **1.2 Périmètre fonctionnel**
 
-Le périmètre du MVP est défini par les spécifications fonctionnelles. Il ne comprend **pas de back-office** (zone d'administration). Les statuts ci-dessous correspondent au démarrage du développement et sont mis à jour au fil des étapes.
+Le périmètre du MVP est défini par les spécifications fonctionnelles. Il ne comprend **pas de back-office** (zone d'administration). Les statuts ci-dessous sont mis à jour au fil des étapes. « En cours » signifie que la logique métier est implémentée et vérifiée, mais qu'il reste à brancher l'authentification réelle (Auth.js) et à appliquer la mise en forme des maquettes.
 
 | Fonctionnalité | Description | Statut |
 | :---- | :---- | :---- |
 | Création de compte | Inscription par e-mail, nom d'utilisateur et mot de passe (validation Zod) | À venir |
 | Authentification | Connexion par e-mail **ou** nom d'utilisateur, session persistante, déconnexion (Auth.js / JWT) | À venir |
-| Gestion du profil | Consulter et modifier e-mail, nom d'utilisateur et mot de passe | À venir |
-| Abonnements | Lister les thèmes, s'abonner, se désabonner | À venir |
-| Publication d'articles | Créer un article (thème, titre, contenu) et le consulter | À venir |
-| Fil d'actualité | Articles des thèmes suivis, triables du plus récent au plus ancien et inversement | À venir |
-| Commentaires | Ajouter un commentaire à un article (non récursif) | À venir |
+| Gestion du profil | Consulter et modifier e-mail, nom d'utilisateur et mot de passe | En cours |
+| Abonnements | Lister les thèmes, s'abonner, se désabonner | En cours |
+| Publication d'articles | Créer un article (thème, titre, contenu) et le consulter | En cours |
+| Fil d'actualité | Articles des thèmes suivis, triables du plus récent au plus ancien et inversement | En cours |
+| Commentaires | Ajouter un commentaire à un article (non récursif) | En cours |
 
 ---
 
