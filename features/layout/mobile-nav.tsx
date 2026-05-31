@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -30,8 +31,12 @@ export const MobileNav = () => {
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col p-6">
-        {/* Titre requis pour l'accessibilité, masqué visuellement. */}
+        {/* Titre et description requis pour l'accessibilité (Radix Dialog),
+            masqués visuellement. */}
         <SheetTitle className="sr-only">Menu</SheetTitle>
+        <SheetDescription className="sr-only">
+          Liens de navigation et accès au profil.
+        </SheetDescription>
 
         <nav className="flex flex-col items-start gap-6">
           <LogoutButton />
