@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { getCurrentUser } from "@/features/auth/current-user";
+import { requireUser } from "@/features/auth/current-user";
 import { getProfile } from "@/features/profile/queries";
 import { ProfileForm } from "@/features/profile/profile-form";
 import { unsubscribe } from "@/features/themes/actions";
@@ -8,7 +8,7 @@ import { unsubscribe } from "@/features/themes/actions";
 // Page de profil : informations modifiables + liste des abonnements avec
 // possibilité de se désabonner. La mise en forme sera ajoutée avec les maquettes.
 const ProfilePage = async () => {
-  const currentUser = await getCurrentUser();
+  const currentUser = await requireUser();
   const profile = await getProfile(currentUser.id);
 
   if (!profile) notFound();

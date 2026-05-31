@@ -1,11 +1,11 @@
-import { getCurrentUser } from "@/features/auth/current-user";
+import { requireUser } from "@/features/auth/current-user";
 import { getTopicsWithSubscription } from "@/features/themes/queries";
 import { subscribe } from "@/features/themes/actions";
 
 // Server Component : lecture des thèmes côté serveur, avec l'état d'abonnement
 // de l'utilisateur courant. La mise en forme sera ajoutée avec les maquettes.
 const ThemesPage = async () => {
-  const user = await getCurrentUser();
+  const user = await requireUser();
   const topics = await getTopicsWithSubscription(user.id);
 
   return (

@@ -1,29 +1,28 @@
+import { cache } from "react";
+import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 /**
- * ⚠️ IMPLÉMENTATION TEMPORAIRE (étape 5).
- *
- * Fournit un « utilisateur courant » pour développer les fonctionnalités qui en
- * dépendent (abonnements, articles, commentaires, profil) AVANT la mise en place
- * de l'authentification réelle (Auth.js) prévue à l'étape 6.
- *
- * À l'étape 6, le corps de cette fonction sera remplacé par la lecture de la
- * session Auth.js (`auth()`), sans modifier le code appelant. Le compte de
- * développement ci-dessous sera alors retiré.
+ * Retourne l'utilisateur courant à partir de la session Auth.js, ou `null` s'il
+ * n'est pas connecté. Mémoïsé par requête (`cache`) pour éviter plusieurs
+ * lectures de session/BDD au sein d'un même rendu.
  */
-const DEV_USER = {
-  email: "dev@mdd.local",
-  username: "dev",
-  // Aucune authentification n'est effectuée à l'étape 5 : ce champ n'est jamais
-  // vérifié. Un vrai mot de passe haché sera mis en place avec Auth.js (étape 6).
-  password: "non-applicable-en-developpement",
-};
+export const getCurrentUser = cache(async () => {
+  const session = await auth();
+  if (!session?.user?.id) return null;
 
-/** Retourne l'utilisateur courant (provisoirement, un compte de développement). */
-export const getCurrentUser = () => {
-  return prisma.user.upsert({
-    where: { email: DEV_USER.email },
-    update: {},
-    create: DEV_USER,
-  });
+  return prisma.user.findUnique({ where: { id: session.user.id } });
+});
+
+/**
+ * Garantit un utilisateur connecté : retourne l'utilisateur courant ou redirige
+ * vers la page de connexion. À utiliser dans les pages protégées (Server
+ * Components) où l'utilisateur est nécessairement présent.
+ */
+export const requireUser = async () => {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  return user;
 };

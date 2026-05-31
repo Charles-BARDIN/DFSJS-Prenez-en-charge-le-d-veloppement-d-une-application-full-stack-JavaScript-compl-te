@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getCurrentUser } from "@/features/auth/current-user";
+import { requireUser } from "@/features/auth/current-user";
 import { getFeed, type FeedOrder } from "@/features/articles/queries";
 import { formatDate } from "@/features/articles/format";
 
@@ -15,7 +15,7 @@ const FeedPage = async ({
   const { order } = await searchParams;
   const feedOrder: FeedOrder = order === "asc" ? "asc" : "desc";
 
-  const user = await getCurrentUser();
+  const user = await requireUser();
   const articles = await getFeed(user.id, feedOrder);
 
   return (

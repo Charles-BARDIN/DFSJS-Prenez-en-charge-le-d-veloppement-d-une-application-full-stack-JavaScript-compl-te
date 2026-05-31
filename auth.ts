@@ -4,16 +4,16 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations";
+import { authConfig } from "@/auth.config";
 
 /**
- * Configuration Auth.js (NextAuth v5).
- * - Provider Credentials : connexion par e-mail OU nom d'utilisateur + mot de passe.
- * - Stratégie JWT : la session est stockée dans un cookie signé (persistance
- *   entre les sessions sans table ni store serveur).
+ * Instance complète Auth.js (NextAuth v5).
+ * - Reprend la configuration edge-safe (authConfig) et y ajoute le provider
+ *   Credentials, qui accède à la base de données (donc hors edge runtime).
+ * - Connexion par e-mail OU nom d'utilisateur + mot de passe ; session JWT.
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -37,25 +37,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const passwordMatches = await bcrypt.compare(password, user.password);
         if (!passwordMatches) return null;
 
-        // Les données retournées alimentent le token JWT (callbacks ci-dessous).
+        // Les données retournées alimentent le token JWT (callbacks ci-dessus).
         return { id: user.id, email: user.email, name: user.username };
       },
     }),
   ],
-  callbacks: {
-    // Au login, on persiste l'identifiant et le nom d'utilisateur dans le token.
-    jwt: ({ token, user }) => {
-      if (user) {
-        token.id = user.id as string;
-        token.username = user.name as string;
-      }
-      return token;
-    },
-    // On expose ces informations côté session (accessibles via auth()).
-    session: ({ session, token }) => {
-      session.user.id = token.id;
-      session.user.username = token.username;
-      return session;
-    },
-  },
 });
