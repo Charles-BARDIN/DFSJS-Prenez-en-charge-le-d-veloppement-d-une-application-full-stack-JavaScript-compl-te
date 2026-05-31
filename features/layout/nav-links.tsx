@@ -12,7 +12,14 @@ const LINKS = [
 
 // Liens de navigation principaux, avec mise en évidence de la page active.
 // `className` permet d'ajuster la taille selon le contexte (header / menu mobile).
-export const NavLinks = ({ className }: { className?: string }) => {
+// `onNavigate` est appelé au clic (ex. fermer le menu mobile).
+export const NavLinks = ({
+  className,
+  onNavigate,
+}: {
+  className?: string;
+  onNavigate?: () => void;
+}) => {
   const pathname = usePathname();
 
   return (
@@ -25,6 +32,7 @@ export const NavLinks = ({ className }: { className?: string }) => {
           <Link
             key={link.href}
             href={link.href}
+            onClick={onNavigate}
             className={cn(
               "font-medium transition-colors hover:text-primary",
               isActive ? "text-primary" : "text-foreground",
