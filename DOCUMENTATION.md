@@ -122,7 +122,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 | **Server Actions** | Couche « API » | [docs](https://nextjs.org/docs/app/getting-started/updating-data) | Interaction front/back typée et sécurisée | **Décidé** — supprime la couche HTTP ; validation + session à la frontière (voir arbitrages). |
 | **Auth.js v5 (NextAuth)** | Authentification | [docs](https://authjs.dev) | Sessions sécurisées | **Décidé** — Credentials + JWT, cookie persistant (voir arbitrages). |
 | **Zod** | Validation / schémas | [docs](https://zod.dev) | Valider les entrées et inférer les types | **Décidé** — schéma = source de vérité, réutilisable front/back. |
-| **bcrypt** | Hachage mot de passe | [docs](https://www.npmjs.com/package/bcrypt) | Stocker les mots de passe de façon sûre | **Décidé** — hachage lent salé (voir arbitrages). |
+| **bcryptjs** | Hachage mot de passe | [docs](https://www.npmjs.com/package/bcryptjs) | Stocker les mots de passe de façon sûre | **Décidé** — algorithme bcrypt en JavaScript pur, sans compilation native (voir arbitrages). |
 | **Tailwind CSS 4 + shadcn/ui** | UI / styling | [docs](https://ui.shadcn.com) | Design system + responsive | **Conservé** (présent dans le starter) — composants possédés, accessibilité Radix (voir arbitrages). |
 | **Vitest + Testing Library + Playwright** | Tests | [docs](https://vitest.dev) | Tests unitaires / composant / e2e | **Décidé** — Supertest écarté, pas d'API REST à tester (voir arbitrages). |
 | **Architecture feature-based** | Organisation du code | — | Regrouper par domaine métier | **Décidé** — cohésion, faible couplage (voir arbitrages). |
@@ -162,11 +162,11 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 * *Inconvénients :* validation au runtime (coût négligeable ici), schémas parfois verbeux, dépendance supplémentaire.
 * *Pourquoi ce choix :* élimine la double déclaration « type + validateur » (Yup/Joi ne fournissent pas le type ; class-validator impose des classes/DTOs et des décorateurs). Centralise les règles métier (mot de passe ≥ 8 caractères avec chiffre/minuscule/majuscule/spécial, formats e-mail et nom d'utilisateur). Déjà présent dans le starter et reconnu dans l'écosystème comme remplaçant des DTOs.
 
-**bcrypt** *(vs argon2, scrypt)*
+**bcryptjs** *(vs bcrypt natif, argon2, scrypt)*
 
-* *Avantages :* fonction de dérivation lente avec sel intégré et facteur de coût ajustable → résiste au brute-force (y compris GPU) ; implémentation très répandue et auditée ; API simple (`hash` / `compare`).
-* *Inconvénients :* argon2id est aujourd'hui le premier choix recommandé par l'OWASP (résistance « mémoire-hard ») ; bcrypt tronque au-delà de 72 octets.
-* *Pourquoi ce choix :* standard éprouvé, suffisant pour le MVP et d'intégration triviale ; argon2 est documenté comme axe d'amélioration. (Règle non négociable : jamais de mot de passe en clair ni de hash rapide type SHA-256.)
+* *Avantages :* algorithme bcrypt (dérivation lente, sel intégré, facteur de coût ajustable → résiste au brute-force) en **JavaScript pur**, donc **aucune compilation native** (`node-gyp`) → installation fiable sur tout environnement, compatible avec les tests (Vitest) et le edge runtime ; API simple (`hash` / `compare`).
+* *Inconvénients :* légèrement plus lent que l'implémentation native `bcrypt` ; argon2id est aujourd'hui le premier choix recommandé par l'OWASP (résistance « mémoire-hard ») ; bcrypt tronque au-delà de 72 octets.
+* *Pourquoi ce choix :* le paquet natif `bcrypt` impose une compilation native parfois capricieuse selon la machine ; `bcryptjs` offre le même algorithme sans cette contrainte, ce qui simplifie l'installation et les tests pour un MVP. argon2 est documenté comme axe d'amélioration. (Règle non négociable : jamais de mot de passe en clair ni de hash rapide type SHA-256.)
 
 **Tailwind CSS 4 + shadcn/ui** *(conservé du starter — vs CSS Modules, MUI, Chakra UI, styled-components)*
 
