@@ -291,13 +291,37 @@ La stratégie repose sur **deux niveaux complémentaires**, chacun ciblant ce qu
 
 ### **3.2 Rapport de performance et optimisation**
 
-Décrivez les actions menées pour **améliorer la performance** du code et du rendu :
+#### Optimisations intégrées dès la conception
 
-* résultats d'audit (Lighthouse, Vercel Analytics, etc.),
-* points d'amélioration identifiés,
-* actions correctives appliquées.
+La performance n'a pas fait l'objet d'une correction *a posteriori* : les choix d'architecture limitent par construction le JavaScript envoyé au client et le coût des requêtes.
 
-*Exemple : "Après audit Lighthouse, la performance est passée de 65 à 95/100 grâce à l'utilisation du composant Next/Image et au rendu statique partiel (PPR)."*
+* **Rendu serveur par défaut (React Server Components).** Les écrans de lecture (fil, thèmes, profil, détail d'article) sont des Server Components : le HTML est rendu côté serveur et **aucun JavaScript de composant n'est envoyé** pour ces pages. Seuls les éléments interactifs sont des Client Components (8 fichiers `'use client'` : formulaires, menu mobile, navigation), ce qui réduit la taille du bundle hydraté.
+* **Pas de couche API REST.** Les Server Actions remplacent les endpoints HTTP : pas de fetchers ni de sérialisation côté client à charger, et les données de lecture sont obtenues directement pendant le rendu serveur (pas de cascade de requêtes réseau au montage).
+* **Police optimisée (`next/font`).** La police Inter est auto-hébergée via `next/font/google` : pas de requête vers Google Fonts, fichiers servis depuis l'origine et **sans décalage de mise en page** (CLS) grâce au `font-display` géré par Next.
+* **Images optimisées (`next/image`).** Le logo et les visuels (pages d'accueil et d'authentification) passent par `next/image` (formats modernes, dimensionnement, *lazy loading*) → pas d'images surdimensionnées qui pénaliseraient le LCP.
+* **Index de base de données.** Les requêtes fréquentes sont indexées dans le schéma Prisma : `@@index([createdAt])` (tri chronologique du fil), `@@index([topicId])` (filtrage par thème), `@@index([articleId])` (commentaires d'un article), plus les contraintes `@unique` (e-mail, nom d'utilisateur, titre de thème) et `@@unique([userId, topicId])` (abonnements). Le tri et le filtrage ne provoquent donc pas de parcours de table complet.
+* **Build de production.** L'audit ci-dessous est réalisé sur un build de production (`next build` + `next start`), seul représentatif des performances réelles (le mode développement n'est pas optimisé).
+
+#### Résultats de l'audit Lighthouse
+
+Audit réalisé avec **Lighthouse 13.0.2** (DevTools Chrome) sur le build de production (`next build` + `next start`), profil **Desktop**, sur deux pages représentatives nécessitant une session : le fil d'actualité (`/feed`) et la liste des thèmes (`/themes`).
+
+| Catégorie | `/feed` | `/themes` |
+| :---- | :----: | :----: |
+| Performance | 100 | 100 |
+| Accessibilité | 100 | 100 |
+| Bonnes pratiques | 96 | 96 |
+| SEO | 100 | 100 |
+
+Les deux pages obtiennent **100/100 en Performance, Accessibilité et SEO**, et **96/100 en Bonnes pratiques**. Ces résultats valident les choix d'optimisation décrits ci-dessus : rendu serveur limitant le JavaScript client, police et images optimisées (pas de décalage de mise en page ni de ressources bloquantes) et bonnes pratiques d'accessibilité (libellés ARIA, titres et descriptions des composants interactifs, contrastes). Les rapports complets sont joints en annexe (§ 5).
+
+> Procédure de reproduction : `npm run build` puis `npm run start`, se connecter, puis lancer Lighthouse (onglet *Lighthouse* des DevTools Chrome, ou `npx lighthouse <url>`) sur la page voulue.
+
+#### Points de vigilance et axes d'amélioration
+
+* **Pagination du fil** : actuellement tous les articles des thèmes suivis sont chargés ; une pagination (ou un défilement infini) sera nécessaire à mesure que le volume d'articles augmente.
+* **Données par-utilisateur non mises en cache** : les pages personnalisées sont rendues dynamiquement (lecture de session) ; un cache par `userId` pourrait être introduit si la charge le justifie.
+* **PPR / `next/dynamic`** : le *Partial Prerendering* et le découpage de code à la demande restent des optimisations possibles ; l'audit actuel (100/100) ne les rend pas nécessaires à ce stade, mais ils pourront être utiles si le volume de contenu et d'interactivité croît.
 
 ### **3.3 Revue technique**
 
