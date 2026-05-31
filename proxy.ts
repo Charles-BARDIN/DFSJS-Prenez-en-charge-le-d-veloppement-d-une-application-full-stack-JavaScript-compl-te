@@ -2,7 +2,9 @@ import NextAuth from "next-auth";
 
 import { authConfig } from "@/auth.config";
 
-// Instance Auth.js edge-safe (sans Prisma) dédiée au middleware.
+// Proxy Next.js 16 (ex-middleware) : s'exécute avant chaque requête pour protéger
+// les routes. On instancie Auth.js à partir de la configuration légère (sans Prisma)
+// afin de ne lire que la session (JWT) sans accéder à la base de données.
 const { auth } = NextAuth(authConfig);
 
 // Routes accessibles sans être connecté.
