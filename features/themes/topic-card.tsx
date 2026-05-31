@@ -14,7 +14,7 @@ type TopicCardProps = {
 // optionnelle (« S'abonner » sur la page des thèmes, « Se désabonner » au profil).
 export const TopicCard = ({ title, description, action }: TopicCardProps) => {
   return (
-    <ContentCard className="h-full text-center">
+    <ContentCard className="h-full">
       <ContentCardTitle>{title}</ContentCardTitle>
       <ContentCardText className="line-clamp-3 flex-1">
         {description}
