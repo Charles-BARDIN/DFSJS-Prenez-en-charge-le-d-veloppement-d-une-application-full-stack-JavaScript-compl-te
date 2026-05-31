@@ -17,11 +17,11 @@ export const metadata: Metadata = {
   description: "Réseau social pour développeurs",
 };
 
-export const RootLayout = ({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) => {
+}>) {
   return (
     <html lang="fr">
       <body
@@ -31,6 +31,4 @@ export const RootLayout = ({
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const Home = () => {
+export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <div className="text-center space-y-8">
@@ -31,6 +31,4 @@ export const Home = () => {
       </div>
     </div>
   );
-};
-
-export default Home;
+}

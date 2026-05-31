@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const NotFound = () => {
+export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <div className="text-center space-y-6">
@@ -20,6 +20,4 @@ export const NotFound = () => {
       </div>
     </div>
   );
-};
-
-export default NotFound;
+}
