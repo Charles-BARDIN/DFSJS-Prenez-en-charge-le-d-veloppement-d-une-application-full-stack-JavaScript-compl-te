@@ -2,21 +2,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Prisma } from "@prisma/client";
 
 import { prismaMock } from "@/test/prisma-mock";
+import { getCurrentUser } from "@/features/auth/current-user";
 import { subscribe, unsubscribe } from "@/features/themes/actions";
 
-// Fonctions mock créées via vi.hoisted pour être disponibles dans les factories
-// de mock (elles-mêmes hoistées au-dessus des imports).
-const { mockedGetCurrentUser } = vi.hoisted(() => ({
-  mockedGetCurrentUser: vi.fn(),
-}));
-
 // Dépendances hors base mockées : la session (utilisateur courant) et le cache.
-vi.mock("@/features/auth/current-user", () => ({
-  getCurrentUser: mockedGetCurrentUser,
-}));
-vi.mock("next/cache", () => ({
-  revalidatePath: vi.fn(),
-}));
+// Factory explicite pour ne pas charger le vrai module (qui importe Auth.js).
+vi.mock("@/features/auth/current-user", () => ({ getCurrentUser: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
+const mockedGetCurrentUser = vi.mocked(getCurrentUser);
 
 // Utilisateur courant factice réutilisé dans les tests « connecté ».
 const currentUser = { id: "user-1" };

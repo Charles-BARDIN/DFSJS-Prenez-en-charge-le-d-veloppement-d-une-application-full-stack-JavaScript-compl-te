@@ -1,19 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { redirect } from "next/navigation";
 
 import { prismaMock } from "@/test/prisma-mock";
+import { getCurrentUser } from "@/features/auth/current-user";
 import { createArticle } from "@/features/articles/actions";
 
-const { mockedGetCurrentUser, mockedRedirect } = vi.hoisted(() => ({
-  mockedGetCurrentUser: vi.fn(),
-  mockedRedirect: vi.fn(),
-}));
-
-vi.mock("@/features/auth/current-user", () => ({
-  getCurrentUser: mockedGetCurrentUser,
-}));
+vi.mock("@/features/auth/current-user", () => ({ getCurrentUser: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("next/navigation", () => ({ redirect: mockedRedirect }));
+vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 
+const mockedGetCurrentUser = vi.mocked(getCurrentUser);
+const mockedRedirect = vi.mocked(redirect);
 const currentUser = { id: "user-1" };
 
 const buildFormData = (topicId: string, title: string, content: string) => {

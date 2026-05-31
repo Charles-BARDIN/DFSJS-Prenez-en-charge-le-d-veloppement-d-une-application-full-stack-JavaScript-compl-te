@@ -1,17 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { prismaMock } from "@/test/prisma-mock";
+import { getCurrentUser } from "@/features/auth/current-user";
 import { addComment } from "@/features/comments/actions";
 
-const { mockedGetCurrentUser } = vi.hoisted(() => ({
-  mockedGetCurrentUser: vi.fn(),
-}));
-
-vi.mock("@/features/auth/current-user", () => ({
-  getCurrentUser: mockedGetCurrentUser,
-}));
+vi.mock("@/features/auth/current-user", () => ({ getCurrentUser: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
+const mockedGetCurrentUser = vi.mocked(getCurrentUser);
 const currentUser = { id: "user-1" };
 
 // Construit un FormData de commentaire pour les Server Actions.

@@ -3,20 +3,17 @@ import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 import { prismaMock } from "@/test/prisma-mock";
+import { getCurrentUser } from "@/features/auth/current-user";
 import { updateProfile } from "@/features/profile/actions";
 
-const { mockedGetCurrentUser } = vi.hoisted(() => ({
-  mockedGetCurrentUser: vi.fn(),
-}));
-
-vi.mock("@/features/auth/current-user", () => ({
-  getCurrentUser: mockedGetCurrentUser,
-}));
+vi.mock("@/features/auth/current-user", () => ({ getCurrentUser: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("bcryptjs", () => ({
   default: { hash: vi.fn().mockResolvedValue("hashed-password") },
 }));
 
+const mockedGetCurrentUser = vi.mocked(getCurrentUser);
+const mockedHash = vi.mocked(bcrypt.hash);
 const currentUser = { id: "user-1" };
 
 // Construit un FormData de profil ; le mot de passe est optionnel.
@@ -42,7 +39,7 @@ describe("updateProfile", () => {
     );
 
     expect(result.success).toBe(true);
-    expect(bcrypt.hash).not.toHaveBeenCalled();
+    expect(mockedHash).not.toHaveBeenCalled();
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: "user-1" },
       data: { email: "new@example.com", username: "new_name" },
@@ -58,7 +55,7 @@ describe("updateProfile", () => {
     );
 
     expect(result.success).toBe(true);
-    expect(bcrypt.hash).toHaveBeenCalledWith("Secret#123", 10);
+    expect(mockedHash).toHaveBeenCalledWith("Secret#123", 10);
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: "user-1" },
       data: {
