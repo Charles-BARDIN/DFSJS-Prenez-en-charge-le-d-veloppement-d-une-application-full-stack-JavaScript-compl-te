@@ -12,7 +12,7 @@ export const SiteHeader = async () => {
   if (!session?.user) return null;
 
   return (
-    <header className="border-b bg-background">
+    <header className="sticky top-0 z-50 border-b bg-background">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Logo />
 
