@@ -194,7 +194,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 
 ### **2.3 API (Server Actions) et schémas de données**
 
-> Conception **prévisionnelle** (étape 2) ; la signature exacte des Server Actions sera confirmée à l'implémentation (étapes 4-5).
+> Cette section décrit les Server Actions telles qu'**implémentées**. Le tableau en donne une vue fonctionnelle ; les signatures exactes figurent dans le code des features (`features/<domaine>/actions.ts` et `queries.ts`).
 
 La logique métier est exposée via des **Server Actions**. Le projet ne comporte qu'**un seul Route Handler**, celui d'Auth.js (`app/api/auth/[...nextauth]/route.ts`, méthodes `GET` et `POST`) : il est **imposé par la librairie** pour ses endpoints internes (connexion, déconnexion, `callback`, `csrf`, `session`, `providers`) et ne contient aucune logique métier. Convention de retour homogène pour les mutations : `ActionResult<T> = { success: true; data: T } | { success: false; error: string; fieldErrors?: Record<string, string> }`.
 
@@ -264,7 +264,7 @@ Remarques :
 * Pas de tables `Account` / `Session` : la stratégie **JWT** d'Auth.js stocke la session dans un cookie signé (pas d'adapter Prisma requis).
 * `Subscription` porte une contrainte d'unicité `@@unique([userId, topicId])` (un seul abonnement par couple utilisateur/thème).
 * Les thèmes (`Topic`) n'ayant pas de back-office, ils sont insérés via un **script de seed**.
-* Suppressions en cascade à définir (ex. supprimer un article supprime ses commentaires).
+* Suppressions en cascade en place via `onDelete: Cascade` (ex. supprimer un article supprime ses commentaires).
 
 ---
 
@@ -301,17 +301,38 @@ Décrivez les actions menées pour **améliorer la performance** du code et du r
 
 ### **3.3 Revue technique**
 
-Présentez une **synthèse critique du code** :
+Synthèse critique du code à l'issue du développement et des tests.
 
-* points forts (structure, typage TypeScript, sécurité Zod),
-* points à améliorer (complexité, dette technique),
-* actions correctives appliquées.
+**Points forts**
 
-*Exemple :*
+* **Typage strict de bout en bout** : les types générés par Prisma sont propagés aux Server Actions puis à l'UI ; `tsc --noEmit` passe sans erreur.
+* **Validation centralisée** : tous les schémas Zod sont regroupés dans `lib/validations.ts`, source de vérité unique réutilisée côté serveur (frontière des Server Actions) et côté client (retour d'erreurs des formulaires).
+* **Frontières de confiance homogènes** : chaque Server Action de mutation vérifie la session (`getCurrentUser`) puis valide ses entrées (Zod) avant tout accès à la base, et renvoie un résultat uniforme `ActionResult` (`ok` / `fail`).
+* **Sécurité en défense de profondeur** : la protection de routes (`proxy.ts`) n'est qu'une première barrière (présence d'un JWT valide) ; la protection réelle des données est rejouée à chaque opération par les Server Actions (Zod + `getCurrentUser`) et par les pages (`requireUser`). Même si cette première barrière était contournée, l'opération échouerait faute de session valide. La protection fonctionne en **liste blanche** : tout est protégé par défaut, seules `/`, `/login` et `/register` sont publiques → aucune nouvelle page ne peut être oubliée.
+* **Données protégées** : mots de passe hachés (bcryptjs), messages d'erreur d'authentification génériques (ne divulguent pas l'existence d'un compte), secrets et connexion BDD jamais exposés au client (Server Components / Server Actions).
+* **Cache multi-utilisateur maîtrisé** : les pages personnalisées (ex. `/themes` avec l'état d'abonnement) sont rendues dynamiquement car `auth()` lit la session → aucune fuite de données via le *Full Route Cache* ; règle retenue : tout cache manuel de données par-utilisateur doit être clé par `userId`.
+* **Architecture lisible** : découpage *feature-based* (`features/<domaine>`) et séparation nette Server / Client Components (lecture en RSC, interactif isolé côté client).
+* **Compatibilité runtime** : configuration Auth.js scindée (`auth.config.ts` compatible *edge* pour le middleware + `auth.ts` complet côté Node).
+* **Testabilité** : la logique d'autorisation est extraite dans `features/auth/authorize.ts` pour être testée isolément ; couverture ciblée sur la logique métier complétée par des tests end-to-end sur les parcours.
 
-* **Point fort :** Typage strict de bout en bout avec Prisma et TypeScript.
-* **À améliorer :** Duplication de la logique de validation dans plusieurs Server Actions.
-* **Action corrective :** Centralisation des schémas Zod dans un dossier lib/definitions.
+**Points à améliorer / dette technique**
+
+* **Hachage** : `bcryptjs` a été retenu pour éviter la compilation native ; argon2id est aujourd'hui recommandé par l'OWASP → axe d'amélioration.
+* **Session JWT** : la révocation n'est pas immédiate (un token reste valide jusqu'à son expiration) → durées courtes, ou passage à des sessions en base si une révocation instantanée devient nécessaire.
+* **Fil d'actualité sans pagination** : tous les articles des thèmes suivis sont chargés → à paginer si le volume augmente.
+* **Périmètre de couverture** : concentré sur la logique métier ; les pages et les actions d'authentification ne sont pas testées unitairement (elles sont exercées en e2e) — choix assumé, à compléter au besoin.
+* **Messages d'erreur serveur** volontairement génériques (pas de fuite d'information) : un mapping plus fin améliorerait le retour utilisateur.
+* **Suppression définitive** : `onDelete: Cascade` évite les enregistrements orphelins, mais un *soft delete* (`deletedAt`) serait préférable en production pour conserver l'historique plutôt que de supprimer définitivement.
+* **Secret d'authentification** : `AUTH_SECRET` est un placeholder de développement → à régénérer (`npx auth secret`) avant tout déploiement.
+* **Performance** non encore auditée (voir § 3.2).
+
+**Actions correctives appliquées**
+
+* **Centralisation des schémas Zod** dans `lib/validations.ts` (suppression des validations dispersées).
+* **Extraction de `authorize`** hors d'`auth.ts` pour le rendre testable indépendamment de la configuration Auth.js.
+* **Élagage du code mort** détecté par Knip (exports et dépendances inutilisés supprimés).
+* **Abstraction `getCurrentUser` / `requireUser`** pour découpler les appelants de l'implémentation d'authentification.
+* **Fermeture du menu mobile** déplacée dans un gestionnaire d'événement plutôt qu'un `useEffect` réagissant à l'URL, suite à la revue ESLint (`react-hooks/set-state-in-effect`).
 
 ---
 
