@@ -1,6 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
+
+import { BackButton } from "@/components/back-button";
 
 type AuthCardProps = {
   title: string;
@@ -14,14 +14,7 @@ export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm">
-        <Link
-          href="/"
-          aria-label="Retour à l'accueil"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          Retour
-        </Link>
+        <BackButton href="/" className="mb-4" />
 
         <div className="space-y-6">
           <div className="flex flex-col items-center gap-4">

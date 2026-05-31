@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getArticle } from "@/features/articles/queries";
 import { formatDate } from "@/features/articles/format";
 import { CommentForm } from "@/features/comments/comment-form";
+import { BackButton } from "@/components/back-button";
 
 // Détail d'un article : thème, titre, auteur, date, contenu et commentaires.
 const ArticlePage = async ({
@@ -17,6 +18,7 @@ const ArticlePage = async ({
 
   return (
     <main>
+      <BackButton href="/feed" />
       <article>
         <h1>{article.title}</h1>
         <p>
