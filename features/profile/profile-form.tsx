@@ -39,7 +39,7 @@ export const ProfileForm = ({ email, username }: ProfileFormProps) => {
         error={fieldErrors?.email}
       />
       <FormField
-        label="Nouveau mot de passe (laisser vide pour ne pas le changer)"
+        label="Nouveau mot de passe"
         name="password"
         type="password"
         error={fieldErrors?.password}
