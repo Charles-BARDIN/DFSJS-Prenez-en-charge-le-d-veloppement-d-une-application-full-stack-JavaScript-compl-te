@@ -89,7 +89,7 @@ flowchart LR
     ORM --> DB
 ```
 
-**Légende.** Les traits pleins représentent le flux de données principal (lecture via les Server Components, mutations via les Server Actions) ; le trait pointillé représente le contrôle d'authentification. Aucune API REST n'est exposée : les Server Actions tiennent ce rôle.
+**Légende.** Les traits pleins représentent le flux de données principal (lecture via les Server Components, mutations via les Server Actions) ; le trait pointillé représente le contrôle d'authentification. La logique métier n'expose aucune API REST : les Server Actions tiennent ce rôle. Le seul Route Handler du projet est celui d'Auth.js (`/api/auth/[...nextauth]`), imposé par la librairie pour ses endpoints internes d'authentification (voir section 2.3).
 
 **Organisation technique (feature-based).** Le code est regroupé par domaine métier plutôt que par type technique :
 
@@ -104,7 +104,7 @@ prisma/              schema.prisma, migrations, seed
 #### Conformité aux contraintes : séparation back/front et sécurité
 
 * **Séparation back/front : logique, pas physique.** La distinction n'est pas un déploiement séparé mais une frontière stricte serveur/client propre à Next.js : Server Components et Server Actions s'exécutent uniquement sur le serveur, les Client Components dans le navigateur. Le code back-end (accès BDD, secrets) n'est jamais envoyé au client.
-* **« Une API permet l'interaction » : ce sont les Server Actions.** Elles constituent le point d'entrée typé par lequel le front sollicite le back — l'équivalent des endpoints d'une API REST, sans couche HTTP exposée à écrire et maintenir.
+* **« Une API permet l'interaction » : ce sont les Server Actions.** Elles constituent le point d'entrée typé par lequel le front sollicite le back — l'équivalent des endpoints d'une API REST, sans couche HTTP métier à écrire et maintenir. (Le seul Route Handler est celui d'Auth.js, dédié à l'authentification, pas à la logique métier.)
 * **Interaction sécurisée.** Chaque Server Action est une frontière de confiance : validation Zod des entrées, contrôle de session (Auth.js) avant toute opération, secrets et connexion BDD jamais exposés au client. Les bonnes pratiques de sécurité Next.js (`nextjs.org/docs/security`) sont suivies.
 * **SOLID / Clean Code.** Appliqués à l'implémentation (architecture feature-based, schémas Zod centralisés, format de retour homogène `ActionResult`) et vérifiés lors de la revue technique (section 3.3).
 
@@ -196,7 +196,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 
 > Conception **prévisionnelle** (étape 2) ; la signature exacte des Server Actions sera confirmée à l'implémentation (étapes 4-5).
 
-La logique serveur est exposée via des **Server Actions** (pas de Route Handlers REST). Convention de retour homogène pour les mutations : `ActionResult<T> = { success: true; data: T } | { success: false; error: string; fieldErrors?: Record<string, string> }`.
+La logique métier est exposée via des **Server Actions**. Le projet ne comporte qu'**un seul Route Handler**, celui d'Auth.js (`app/api/auth/[...nextauth]/route.ts`, méthodes `GET` et `POST`) : il est **imposé par la librairie** pour ses endpoints internes (connexion, déconnexion, `callback`, `csrf`, `session`, `providers`) et ne contient aucune logique métier. Convention de retour homogène pour les mutations : `ActionResult<T> = { success: true; data: T } | { success: false; error: string; fieldErrors?: Record<string, string> }`.
 
 | Server Action | Type | Description | Retour / Réponse |
 | :---- | :---- | :---- | :---- |
