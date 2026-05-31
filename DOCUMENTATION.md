@@ -46,17 +46,17 @@ Date : 29/05/2026
 
 ### **1.2 Périmètre fonctionnel**
 
-Le périmètre du MVP est défini par les spécifications fonctionnelles. Il ne comprend **pas de back-office** (zone d'administration). Les statuts ci-dessous sont mis à jour au fil des étapes. « En cours » signifie que la logique métier est implémentée et vérifiée, mais qu'il reste à brancher l'authentification réelle (Auth.js) et à appliquer la mise en forme des maquettes.
+Le périmètre du MVP est défini par les spécifications fonctionnelles. Il ne comprend **pas de back-office** (zone d'administration). Au terme de l'étape de tests, chaque fonctionnalité est implémentée, conforme aux maquettes, branchée sur l'authentification réelle (Auth.js) et couverte par des tests (unitaires et/ou end-to-end).
 
 | Fonctionnalité | Description | Statut |
 | :---- | :---- | :---- |
-| Création de compte | Inscription par e-mail, nom d'utilisateur et mot de passe (validation Zod) | À venir |
-| Authentification | Connexion par e-mail **ou** nom d'utilisateur, session persistante, déconnexion (Auth.js / JWT) | À venir |
-| Gestion du profil | Consulter et modifier e-mail, nom d'utilisateur et mot de passe | En cours |
-| Abonnements | Lister les thèmes, s'abonner, se désabonner | En cours |
-| Publication d'articles | Créer un article (thème, titre, contenu) et le consulter | En cours |
-| Fil d'actualité | Articles des thèmes suivis, triables du plus récent au plus ancien et inversement | En cours |
-| Commentaires | Ajouter un commentaire à un article (non récursif) | En cours |
+| Création de compte | Inscription par e-mail, nom d'utilisateur et mot de passe (validation Zod) | Terminée |
+| Authentification | Connexion par e-mail **ou** nom d'utilisateur, session persistante, déconnexion (Auth.js / JWT) | Terminée |
+| Gestion du profil | Consulter et modifier e-mail, nom d'utilisateur et mot de passe | Terminée |
+| Abonnements | Lister les thèmes, s'abonner, se désabonner | Terminée |
+| Publication d'articles | Créer un article (thème, titre, contenu) et le consulter | Terminée |
+| Fil d'actualité | Articles des thèmes suivis, triables du plus récent au plus ancien et inversement | Terminée |
+| Commentaires | Ajouter un commentaire à un article (non récursif) | Terminée |
 
 ---
 
