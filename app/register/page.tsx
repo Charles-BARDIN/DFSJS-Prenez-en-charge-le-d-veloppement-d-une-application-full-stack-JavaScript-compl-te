@@ -1,17 +1,23 @@
 import Link from "next/link";
 
 import { RegisterForm } from "@/features/auth/register-form";
+import { AuthCard } from "@/features/auth/auth-card";
 
-// Page d'inscription. La mise en forme sera ajoutée avec les maquettes.
 const RegisterPage = () => {
   return (
-    <main>
-      <h1>Inscription</h1>
+    <AuthCard
+      title="Inscription"
+      footer={
+        <>
+          Déjà un compte ?{" "}
+          <Link href="/login" className="font-medium text-primary hover:underline">
+            Se connecter
+          </Link>
+        </>
+      }
+    >
       <RegisterForm />
-      <p>
-        Déjà un compte ? <Link href="/login">Se connecter</Link>
-      </p>
-    </main>
+    </AuthCard>
   );
 };
 

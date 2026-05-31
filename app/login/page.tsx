@@ -1,17 +1,23 @@
 import Link from "next/link";
 
 import { LoginForm } from "@/features/auth/login-form";
+import { AuthCard } from "@/features/auth/auth-card";
 
-// Page de connexion. La mise en forme sera ajoutée avec les maquettes.
 const LoginPage = () => {
   return (
-    <main>
-      <h1>Se connecter</h1>
+    <AuthCard
+      title="Se connecter"
+      footer={
+        <>
+          Pas encore de compte ?{" "}
+          <Link href="/register" className="font-medium text-primary hover:underline">
+            S&apos;inscrire
+          </Link>
+        </>
+      }
+    >
       <LoginForm />
-      <p>
-        Pas encore de compte ? <Link href="/register">S&apos;inscrire</Link>
-      </p>
-    </main>
+    </AuthCard>
   );
 };
 

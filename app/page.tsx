@@ -1,34 +1,22 @@
 import Link from "next/link";
+import Image from "next/image";
 
+import { Button } from "@/components/ui/button";
+
+// Page d'accueil (non connectée) : logo MDD et accès à la connexion / inscription.
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-      <div className="text-center space-y-8">
-        <div className="flex justify-center">
-          <div className="bg-primary text-primary-foreground text-4xl font-bold px-8 py-4 rounded-2xl">
-            MDD
-          </div>
-        </div>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-10 bg-background px-4">
+      <Image src="/logo.png" alt="MDD" width={695} height={401} priority className="h-28 w-auto" />
 
-        <h1 className="text-3xl font-bold text-foreground">
-          Monde de Dév
-        </h1>
-
-        <div className="flex gap-4">
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Se connecter
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
-          >
-            S&apos;inscrire
-          </Link>
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button asChild size="lg" variant="outline">
+          <Link href="/login">Se connecter</Link>
+        </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link href="/register">S&apos;inscrire</Link>
+        </Button>
       </div>
-    </div>
+    </main>
   );
 }

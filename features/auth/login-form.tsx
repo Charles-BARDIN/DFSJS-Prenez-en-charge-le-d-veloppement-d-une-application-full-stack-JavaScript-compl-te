@@ -3,7 +3,9 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { login } from "@/features/auth/actions";
+import { FormField } from "./form-field";
 
 // Client Component : formulaire de connexion (e-mail ou nom d'utilisateur).
 // En cas de succès, redirige vers le fil d'actualité.
@@ -22,26 +24,31 @@ export const LoginForm = () => {
   }, [state, router]);
 
   return (
-    <form action={formAction}>
-      <label>
-        E-mail ou nom d&apos;utilisateur
-        <input name="identifier" type="text" required />
-      </label>
-      {fieldErrors?.identifier ? (
-        <p role="alert">{fieldErrors.identifier}</p>
+    <form action={formAction} className="space-y-4">
+      <FormField
+        label="E-mail ou nom d'utilisateur"
+        name="identifier"
+        type="text"
+        required
+        error={fieldErrors?.identifier}
+      />
+      <FormField
+        label="Mot de passe"
+        name="password"
+        type="password"
+        required
+        error={fieldErrors?.password}
+      />
+
+      {globalError ? (
+        <p role="alert" className="text-sm text-destructive">
+          {globalError}
+        </p>
       ) : null}
 
-      <label>
-        Mot de passe
-        <input name="password" type="password" required />
-      </label>
-      {fieldErrors?.password ? <p role="alert">{fieldErrors.password}</p> : null}
-
-      {globalError ? <p role="alert">{globalError}</p> : null}
-
-      <button type="submit" disabled={pending}>
+      <Button type="submit" className="w-full" disabled={pending}>
         Se connecter
-      </button>
+      </Button>
     </form>
   );
 };

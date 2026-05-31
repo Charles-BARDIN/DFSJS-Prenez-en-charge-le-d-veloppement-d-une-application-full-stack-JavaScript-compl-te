@@ -3,7 +3,9 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { registerUser } from "@/features/auth/actions";
+import { FormField } from "./form-field";
 
 // Client Component : formulaire d'inscription.
 // En cas de succès, l'utilisateur est déjà connecté : on le redirige vers le fil.
@@ -22,30 +24,38 @@ export const RegisterForm = () => {
   }, [state, router]);
 
   return (
-    <form action={formAction}>
-      <label>
-        Nom d&apos;utilisateur
-        <input name="username" type="text" required />
-      </label>
-      {fieldErrors?.username ? <p role="alert">{fieldErrors.username}</p> : null}
+    <form action={formAction} className="space-y-4">
+      <FormField
+        label="Nom d'utilisateur"
+        name="username"
+        type="text"
+        required
+        error={fieldErrors?.username}
+      />
+      <FormField
+        label="Adresse e-mail"
+        name="email"
+        type="email"
+        required
+        error={fieldErrors?.email}
+      />
+      <FormField
+        label="Mot de passe"
+        name="password"
+        type="password"
+        required
+        error={fieldErrors?.password}
+      />
 
-      <label>
-        Adresse e-mail
-        <input name="email" type="email" required />
-      </label>
-      {fieldErrors?.email ? <p role="alert">{fieldErrors.email}</p> : null}
+      {globalError ? (
+        <p role="alert" className="text-sm text-destructive">
+          {globalError}
+        </p>
+      ) : null}
 
-      <label>
-        Mot de passe
-        <input name="password" type="password" required />
-      </label>
-      {fieldErrors?.password ? <p role="alert">{fieldErrors.password}</p> : null}
-
-      {globalError ? <p role="alert">{globalError}</p> : null}
-
-      <button type="submit" disabled={pending}>
+      <Button type="submit" className="w-full" disabled={pending}>
         S&apos;inscrire
-      </button>
+      </Button>
     </form>
   );
 };
