@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { registerUser } from "@/features/auth/actions";
 import { FormField } from "./form-field";
 
-// Client Component : formulaire d'inscription.
-// En cas de succès, l'utilisateur est déjà connecté : on le redirige vers
-// la page d'accueil (le fil d'actualité).
+/**
+ * Client Component : formulaire d'inscription.
+ * En cas de succès, l'utilisateur est déjà connecté : on le redirige vers
+ * la page d'accueil (le fil d'actualité).
+ */
 export const RegisterForm = () => {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(registerUser, null);

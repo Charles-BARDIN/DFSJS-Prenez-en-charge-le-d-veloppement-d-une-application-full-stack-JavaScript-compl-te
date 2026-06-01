@@ -11,8 +11,10 @@ type ProfileFormProps = {
   username: string;
 };
 
-// Client Component : formulaire de modification du profil.
-// Le mot de passe est laissé vide par défaut et n'est modifié que s'il est saisi.
+/**
+ * Client Component : formulaire de modification du profil.
+ * Le mot de passe est laissé vide par défaut et n'est modifié que s'il est saisi.
+ */
 export const ProfileForm = ({ email, username }: ProfileFormProps) => {
   const [state, formAction, pending] = useActionState(updateProfile, null);
   const fieldErrors = state && !state.success ? state.fieldErrors : undefined;

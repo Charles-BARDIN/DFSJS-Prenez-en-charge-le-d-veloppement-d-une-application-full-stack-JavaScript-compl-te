@@ -2,8 +2,10 @@ import { getCurrentUser } from "@/features/auth/current-user";
 import { Home } from "@/features/layout/home";
 import { Feed } from "@/features/articles/feed";
 
-// Page d'accueil : présente l'accueil public au visiteur non connecté, et le
-// fil d'actualité à l'utilisateur connecté (cf. spécifications fonctionnelles).
+/**
+ * Page d'accueil : présente l'accueil public au visiteur non connecté, et le
+ * fil d'actualité à l'utilisateur connecté (cf. spécifications fonctionnelles).
+ */
 const HomePage = async ({
   searchParams,
 }: {

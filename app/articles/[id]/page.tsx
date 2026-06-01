@@ -6,7 +6,7 @@ import { CommentForm } from "@/features/comments/comment-form";
 import { CommentItem } from "@/features/comments/comment-item";
 import { BackButton } from "@/components/back-button";
 
-// Détail d'un article : thème, titre, auteur, date, contenu et commentaires.
+/** Détail d'un article : thème, titre, auteur, date, contenu et commentaires. */
 const ArticlePage = async ({
   params,
 }: {

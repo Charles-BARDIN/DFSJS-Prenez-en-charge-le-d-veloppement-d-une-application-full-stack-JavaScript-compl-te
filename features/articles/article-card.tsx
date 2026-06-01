@@ -16,8 +16,10 @@ type ArticleCardProps = {
   createdAt: Date;
 };
 
-// Carte d'un article dans le fil : titre cliquable, méta (date, auteur, thème)
-// et extrait du contenu tronqué.
+/**
+ * Carte d'un article dans le fil : titre cliquable, méta (date, auteur, thème)
+ * et extrait du contenu tronqué.
+ */
 export const ArticleCard = ({
   id,
   title,

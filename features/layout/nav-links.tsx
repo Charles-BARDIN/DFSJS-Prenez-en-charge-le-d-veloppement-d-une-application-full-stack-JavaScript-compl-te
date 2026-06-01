@@ -10,9 +10,11 @@ const LINKS = [
   { href: "/themes", label: "Thèmes", match: ["/themes"] },
 ];
 
-// Liens de navigation principaux, avec mise en évidence de la page active.
-// `className` permet d'ajuster la taille selon le contexte (header / menu mobile).
-// `onNavigate` est appelé au clic (ex. fermer le menu mobile).
+/**
+ * Liens de navigation principaux, avec mise en évidence de la page active.
+ * `className` permet d'ajuster la taille selon le contexte (header / menu mobile).
+ * `onNavigate` est appelé au clic (ex. fermer le menu mobile).
+ */
 export const NavLinks = ({
   className,
   onNavigate,

@@ -8,8 +8,10 @@ type AuthCardProps = {
   footer: React.ReactNode;
 };
 
-// Mise en page commune aux écrans de connexion et d'inscription :
-// flèche de retour, logo, titre, formulaire et pied de page, centrés.
+/**
+ * Mise en page commune aux écrans de connexion et d'inscription :
+ * flèche de retour, logo, titre, formulaire et pied de page, centrés.
+ */
 export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-10">

@@ -4,8 +4,10 @@ import { subscribe } from "@/features/themes/actions";
 import { TopicCard } from "@/features/themes/topic-card";
 import { Button } from "@/components/ui/button";
 
-// Server Component : lecture des thèmes côté serveur, avec l'état d'abonnement
-// de l'utilisateur courant.
+/**
+ * Server Component : lecture des thèmes côté serveur, avec l'état d'abonnement
+ * de l'utilisateur courant.
+ */
 const ThemesPage = async () => {
   const user = await requireUser();
   const topics = await getTopicsWithSubscription(user.id);

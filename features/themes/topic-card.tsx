@@ -10,8 +10,10 @@ type TopicCardProps = {
   action?: React.ReactNode;
 };
 
-// Carte d'un thème : titre, description (tronquée à 3 lignes) et zone d'action
-// optionnelle (« S'abonner » sur la page des thèmes, « Se désabonner » au profil).
+/**
+ * Carte d'un thème : titre, description (tronquée à 3 lignes) et zone d'action
+ * optionnelle (« S'abonner » sur la page des thèmes, « Se désabonner » au profil).
+ */
 export const TopicCard = ({ title, description, action }: TopicCardProps) => {
   return (
     <ContentCard className="h-full">

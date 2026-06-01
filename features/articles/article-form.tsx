@@ -17,8 +17,10 @@ import { createArticle } from "@/features/articles/actions";
 
 type TopicOption = { id: string; title: string };
 
-// Client Component : gère l'état du formulaire et l'affichage des erreurs de
-// validation renvoyées par la Server Action via useActionState.
+/**
+ * Client Component : gère l'état du formulaire et l'affichage des erreurs de
+ * validation renvoyées par la Server Action via useActionState.
+ */
 export const ArticleForm = ({ topics }: { topics: TopicOption[] }) => {
   const [state, formAction, pending] = useActionState(createArticle, null);
   const fieldErrors = state && !state.success ? state.fieldErrors : undefined;

@@ -7,8 +7,10 @@ import { TopicCard } from "@/features/themes/topic-card";
 import { unsubscribe } from "@/features/themes/actions";
 import { Button } from "@/components/ui/button";
 
-// Page de profil : informations modifiables + liste des abonnements avec
-// possibilité de se désabonner.
+/**
+ * Page de profil : informations modifiables + liste des abonnements avec
+ * possibilité de se désabonner.
+ */
 const ProfilePage = async () => {
   const currentUser = await requireUser();
   const profile = await getProfile(currentUser.id);

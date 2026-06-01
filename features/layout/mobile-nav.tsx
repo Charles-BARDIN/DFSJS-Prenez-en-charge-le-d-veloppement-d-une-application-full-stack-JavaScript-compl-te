@@ -15,7 +15,7 @@ import { LogoutButton } from "@/features/auth/logout-button";
 import { NavLinks } from "./nav-links";
 import { AvatarLink } from "./avatar-link";
 
-// Menu de navigation mobile : un panneau latéral ouvert via un bouton « burger ».
+/** Menu de navigation mobile : un panneau latéral ouvert via un bouton « burger ». */
 export const MobileNav = () => {
   const [open, setOpen] = useState(false);
 

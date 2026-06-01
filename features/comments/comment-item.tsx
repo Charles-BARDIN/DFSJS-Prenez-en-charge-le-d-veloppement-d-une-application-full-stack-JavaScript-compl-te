@@ -1,5 +1,7 @@
-// Affichage d'un commentaire : nom d'auteur à gauche du contenu sur desktop,
-// au-dessus (aligné à droite) sur mobile — conforme à la maquette.
+/**
+ * Affichage d'un commentaire : nom d'auteur à gauche du contenu sur desktop,
+ * au-dessus (aligné à droite) sur mobile — conforme à la maquette.
+ */
 export const CommentItem = ({
   username,
   content,

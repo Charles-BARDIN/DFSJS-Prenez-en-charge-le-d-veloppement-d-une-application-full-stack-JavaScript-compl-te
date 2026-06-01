@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-// Lien vers la page de profil affichant l'icône utilisateur (public/user.svg).
-// L'icône est colorée via un masque CSS : couleur normale, et couleur de marque
-// lorsque l'utilisateur se trouve sur la page profil.
+/**
+ * Lien vers la page de profil affichant l'icône utilisateur (public/user.svg).
+ * L'icône est colorée via un masque CSS : couleur normale, et couleur de marque
+ * lorsque l'utilisateur se trouve sur la page profil.
+ */
 export const AvatarLink = ({ onNavigate }: { onNavigate?: () => void }) => {
   const pathname = usePathname();
   const isActive = pathname === "/profile";

@@ -4,9 +4,11 @@ import { getFeed, type FeedOrder } from "@/features/articles/queries";
 import { ArticleCard } from "@/features/articles/article-card";
 import { Button } from "@/components/ui/button";
 
-// Fil d'actualité de l'utilisateur connecté, affiché sur la page d'accueil.
-// Le tri est piloté par le paramètre d'URL `order` (asc | desc), lu ici même,
-// ce qui évite tout JavaScript côté client.
+/**
+ * Fil d'actualité de l'utilisateur connecté, affiché sur la page d'accueil.
+ * Le tri est piloté par le paramètre d'URL `order` (asc | desc), lu ici même,
+ * ce qui évite tout JavaScript côté client.
+ */
 export const Feed = async ({
   userId,
   searchParams,

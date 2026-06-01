@@ -5,8 +5,10 @@ import { NavLinks } from "./nav-links";
 import { MobileNav } from "./mobile-nav";
 import { AvatarLink } from "./avatar-link";
 
-// En-tête du site, affiché uniquement lorsqu'un utilisateur est connecté.
-// Navigation complète sur desktop, menu « burger » sur mobile.
+/**
+ * En-tête du site, affiché uniquement lorsqu'un utilisateur est connecté.
+ * Navigation complète sur desktop, menu « burger » sur mobile.
+ */
 export const SiteHeader = async () => {
   const session = await auth();
   if (!session?.user) return null;

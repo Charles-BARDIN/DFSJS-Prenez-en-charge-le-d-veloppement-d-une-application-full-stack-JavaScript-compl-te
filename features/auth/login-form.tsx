@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { login } from "@/features/auth/actions";
 import { FormField } from "./form-field";
 
-// Client Component : formulaire de connexion (e-mail ou nom d'utilisateur).
-// En cas de succès, redirige vers la page d'accueil (le fil d'actualité).
+/**
+ * Client Component : formulaire de connexion (e-mail ou nom d'utilisateur).
+ * En cas de succès, redirige vers la page d'accueil (le fil d'actualité).
+ */
 export const LoginForm = () => {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(login, null);

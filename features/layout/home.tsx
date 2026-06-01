@@ -3,8 +3,10 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
-// Accueil public (visiteur non connecté) : logo MDD et accès à la connexion
-// ou à l'inscription.
+/**
+ * Accueil public (visiteur non connecté) : logo MDD et accès à la connexion
+ * ou à l'inscription.
+ */
 export const Home = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-10 bg-background px-4">

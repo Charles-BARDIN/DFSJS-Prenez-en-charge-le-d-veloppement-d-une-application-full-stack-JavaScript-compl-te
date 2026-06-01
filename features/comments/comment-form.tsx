@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { addComment } from "@/features/comments/actions";
 
-// Client Component : formulaire d'ajout de commentaire.
-// Affiche les erreurs de validation et vide le champ après un envoi réussi.
+/**
+ * Client Component : formulaire d'ajout de commentaire.
+ * Affiche les erreurs de validation et vide le champ après un envoi réussi.
+ */
 export const CommentForm = ({ articleId }: { articleId: string }) => {
   const [state, formAction, pending] = useActionState(addComment, null);
   const formRef = useRef<HTMLFormElement>(null);

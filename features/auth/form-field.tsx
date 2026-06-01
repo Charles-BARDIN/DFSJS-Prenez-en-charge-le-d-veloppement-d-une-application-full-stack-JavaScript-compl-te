@@ -6,7 +6,7 @@ type FormFieldProps = React.ComponentProps<"input"> & {
   error?: string;
 };
 
-// Champ de formulaire réutilisable : libellé, champ de saisie et message d'erreur.
+/** Champ de formulaire réutilisable : libellé, champ de saisie et message d'erreur. */
 export const FormField = ({ label, error, id, name, ...props }: FormFieldProps) => {
   const fieldId = id ?? name;
 
