@@ -200,15 +200,15 @@ La logique métier est exposée via des **Server Actions**. Le projet ne comport
 
 | Server Action | Type | Description | Retour / Réponse |
 | :---- | :---- | :---- | :---- |
-| `registerUser` | Mutation | Créer un compte (e-mail, nom d'utilisateur, mot de passe validé Zod et haché) | `ActionResult<{ userId }>` |
-| `signIn` / `signOut` | Mutation | Connexion (e-mail **ou** nom d'utilisateur) / déconnexion via Auth.js | Session (cookie JWT) |
-| `getCurrentProfile` | Query | Profil de l'utilisateur connecté + abonnements | `User` (sans mot de passe) |
-| `updateProfile` | Mutation | Modifier e-mail / nom d'utilisateur / mot de passe | `ActionResult<User>` |
-| `getTopics` | Query | Liste de tous les thèmes + état d'abonnement de l'utilisateur | `Topic[]` |
+| `registerUser` | Mutation | Créer un compte (e-mail, nom d'utilisateur, mot de passe validé Zod et haché) puis connecter l'utilisateur | `ActionResult` |
+| `login` / `logout` | Mutation | Connexion (e-mail **ou** nom d'utilisateur) / déconnexion (s'appuient sur `signIn` / `signOut` d'Auth.js) | `ActionResult` / redirection |
+| `getProfile` | Query | Profil de l'utilisateur connecté + abonnements | `User` (sans mot de passe) + abonnements |
+| `updateProfile` | Mutation | Modifier e-mail / nom d'utilisateur / mot de passe | `ActionResult` |
+| `getTopicsWithSubscription` | Query | Liste de tous les thèmes + état d'abonnement de l'utilisateur | `Topic[]` (avec `isSubscribed`) |
 | `subscribe` / `unsubscribe` | Mutation | S'abonner / se désabonner à un thème | `ActionResult` |
 | `getFeed` | Query | Fil des articles des abonnements, trié (récent / ancien) | `Article[]` |
 | `getArticle` | Query | Détail d'un article + commentaires | `Article & { comments }` |
-| `createArticle` | Mutation | Créer un article (thème, titre, contenu ; auteur + date automatiques) | `ActionResult<{ articleId }>` |
+| `createArticle` | Mutation | Créer un article (thème, titre, contenu ; auteur + date automatiques) | Redirige vers l'article créé |
 | `addComment` | Mutation | Ajouter un commentaire (contenu ; auteur + date automatiques) | `ActionResult` |
 
 **Modèle de données (Prisma).**
@@ -283,8 +283,8 @@ La stratégie repose sur **deux niveaux complémentaires**, chacun ciblant ce qu
 
 | Type de test | Outil / framework | Portée | Résultats |
 | :---- | :---- | :---- | :---- |
-| Test unitaire / intégration | Vitest (+ mock Prisma) | Server Actions, validations Zod, autorisation, helpers | **61 tests** sur 11 fichiers — ✅ tous passants |
-| Test de composant | React Testing Library | Composants Client (carte d'article, formulaire de commentaire) | Inclus dans les 61 tests — ✅ |
+| Test unitaire / intégration | Vitest (+ mock Prisma) | Server Actions, validations Zod, autorisation, helpers | **62 tests** sur 11 fichiers — ✅ tous passants |
+| Test de composant | React Testing Library | Composants Client (carte d'article, formulaire de commentaire) | Inclus dans les 62 tests — ✅ |
 | Test e2e | Playwright (Chromium) | Inscription, connexion/déconnexion, refus de connexion, protection des routes, abonnement à un thème, création + consultation d'un article avec commentaire | **6 scénarios** — ✅ tous passants |
 
 > **Couverture (logique métier).** Seuils exigés via `vitest.config.ts` : statements ≥ 85 %, branches ≥ 80 %, functions ≥ 85 %, lines ≥ 85 %. Le rapport HTML est généré par `npm run test:coverage` (voir annexes, § 5).
@@ -304,9 +304,9 @@ La performance n'a pas fait l'objet d'une correction *a posteriori* : les choix 
 
 #### Résultats de l'audit Lighthouse
 
-Audit réalisé avec **Lighthouse 13.0.2** (DevTools Chrome) sur le build de production (`next build` + `next start`), profil **Desktop**, sur deux pages représentatives nécessitant une session : le fil d'actualité (`/feed`) et la liste des thèmes (`/themes`).
+Audit réalisé avec **Lighthouse 13.0.2** (DevTools Chrome) sur le build de production (`next build` + `next start`), profil **Desktop**, sur deux pages représentatives nécessitant une session : le fil d'actualité (page d'accueil `/`) et la liste des thèmes (`/themes`).
 
-| Catégorie | `/feed` | `/themes` |
+| Catégorie | Accueil `/` (fil) | `/themes` |
 | :---- | :----: | :----: |
 | Performance | 100 | 100 |
 | Accessibilité | 100 | 100 |
@@ -351,7 +351,7 @@ Synthèse critique du code à l'issue du développement et des tests.
 * **Messages d'erreur serveur** volontairement génériques (pas de fuite d'information) : un mapping plus fin améliorerait le retour utilisateur.
 * **Suppression définitive** : `onDelete: Cascade` évite les enregistrements orphelins, mais un *soft delete* (`deletedAt`) serait préférable en production pour conserver l'historique plutôt que de supprimer définitivement.
 * **Secret d'authentification** : `AUTH_SECRET` est un placeholder de développement → à régénérer (`npx auth secret`) avant tout déploiement.
-* **Performance** non encore auditée (voir § 3.2).
+* **En-tête CSP absent** : seul point retiré par l'audit Lighthouse (cf. § 3.2) ; une *Content-Security-Policy* constituerait un durcissement supplémentaire.
 
 **Actions correctives appliquées**
 
@@ -371,7 +371,7 @@ Aide destinée aux utilisateurs de MDD, au format **Question / Réponse**.
 
 **Q : Comment créer un compte ?**
 
-R : Cliquez sur « S'inscrire », renseignez votre adresse e-mail, un nom d'utilisateur et un mot de passe, puis validez. Vous êtes automatiquement connecté et redirigé vers votre fil d'actualité.
+R : Cliquez sur « S'inscrire », renseignez votre adresse e-mail, un nom d'utilisateur et un mot de passe, puis validez. Vous êtes automatiquement connecté et redirigé vers la page d'accueil, qui affiche votre fil d'actualité.
 
 **Q : Quelles sont les règles pour le mot de passe ?**
 
@@ -383,7 +383,7 @@ R : Sur la page « Se connecter », saisissez **votre e-mail ou votre nom d'util
 
 **Q : Mon fil d'actualité est vide, est-ce normal ?**
 
-R : Oui, le fil n'affiche que les articles des thèmes auxquels vous êtes abonné. Rendez-vous sur la page « Thèmes » pour vous abonner : des articles apparaîtront ensuite dans votre fil.
+R : Oui, le fil (sur la page d'accueil) n'affiche que les articles des thèmes auxquels vous êtes abonné. Rendez-vous sur la page « Thèmes » pour vous abonner : des articles apparaîtront ensuite dans votre fil.
 
 **Q : Comment m'abonner à un thème ?**
 
@@ -415,7 +415,7 @@ R : Rafraîchissez la page. Si le problème persiste, vérifiez votre connexion 
 
 ### **4.2 Supervision et tâches déléguées à l'IA**
 
-Décrivez les tâches confiées à l'IA ou à des collaborateurs juniors, et comment vous avez **revérifié, validé ou corrigé** leur travail.
+Conformément à la posture de supervision attendue, quelques tâches simples ont été confiées à l'IA, puis systématiquement **relues, validées ou corrigées**. Le tableau ci-dessous en rend compte.
 
 | Tâche déléguée | Outil / collaborateur | Objectif | Vérification effectuée |
 | :---- | :---- | :---- | :---- |

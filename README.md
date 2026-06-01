@@ -123,12 +123,48 @@ npm run test:e2e     # end-to-end (base de test 5435, réinitialisée avant exé
 Les tests end-to-end démarrent l'application sur le port 3100 et utilisent la
 base de test dédiée ; ils n'affectent pas la base de développement.
 
+## Server Actions & API
+
+L'application n'expose pas d'API REST : la logique métier passe par des **Server
+Actions** Next.js (validation Zod + contrôle de session avant toute opération).
+Le seul Route Handler est celui d'Auth.js. Détail des choix en
+[`DOCUMENTATION.md` § 2.3](./DOCUMENTATION.md).
+
+**Mutations** (`'use server'`)
+
+| Action | Fichier | Description |
+| :---- | :---- | :---- |
+| `registerUser` | `features/auth/actions.ts` | Inscription (e-mail, nom d'utilisateur, mot de passe) puis connexion |
+| `login` / `logout` | `features/auth/actions.ts` | Connexion (e-mail **ou** nom d'utilisateur) / déconnexion |
+| `updateProfile` | `features/profile/actions.ts` | Modifier e-mail / nom d'utilisateur / mot de passe |
+| `subscribe` / `unsubscribe` | `features/themes/actions.ts` | S'abonner / se désabonner à un thème |
+| `createArticle` | `features/articles/actions.ts` | Créer un article (auteur et date automatiques) |
+| `addComment` | `features/comments/actions.ts` | Commenter un article (auteur et date automatiques) |
+
+**Lectures** (queries)
+
+| Query | Fichier | Description |
+| :---- | :---- | :---- |
+| `getFeed` | `features/articles/queries.ts` | Fil des articles des thèmes suivis, trié (récent / ancien) |
+| `getArticle` | `features/articles/queries.ts` | Détail d'un article + commentaires |
+| `getTopicsWithSubscription` / `getTopicList` | `features/themes/queries.ts` | Thèmes (avec état d'abonnement) / liste légère |
+| `getProfile` | `features/profile/queries.ts` | Profil de l'utilisateur + abonnements |
+| `getCurrentUser` / `requireUser` | `features/auth/current-user.ts` | Utilisateur courant / garde de page protégée |
+
+**Route Handler**
+
+| Endpoint | Fichier | Description |
+| :---- | :---- | :---- |
+| `GET` / `POST /api/auth/[...nextauth]` | `app/api/auth/[...nextauth]/route.ts` | Endpoints internes d'Auth.js (imposés par la librairie) |
+
 ## Structure du projet
 
 ```
-app/        routes (App Router) et pages
-features/   logique par domaine (auth, themes, articles, profile, layout)
-lib/        utilitaires transverses (client Prisma, validations Zod, helpers)
-prisma/     schema.prisma, migrations, seed
-e2e/        tests Playwright
+app/          routes (App Router), pages et Route Handler Auth.js
+components/    composants UI réutilisables (shadcn/ui possédés)
+features/     logique par domaine (auth, themes, articles, comments, profile, layout)
+lib/          utilitaires transverses (client Prisma, validations Zod, helpers)
+prisma/       schema.prisma, migrations, seed
+e2e/          tests Playwright
+auth.ts, auth.config.ts, proxy.ts   configuration Auth.js et protection des routes
 ```
