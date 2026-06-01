@@ -8,7 +8,7 @@ import { login } from "@/features/auth/actions";
 import { FormField } from "./form-field";
 
 // Client Component : formulaire de connexion (e-mail ou nom d'utilisateur).
-// En cas de succès, redirige vers le fil d'actualité.
+// En cas de succès, redirige vers la page d'accueil (le fil d'actualité).
 export const LoginForm = () => {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(login, null);
@@ -18,7 +18,7 @@ export const LoginForm = () => {
 
   useEffect(() => {
     if (state?.success) {
-      router.push("/feed");
+      router.push("/");
       router.refresh();
     }
   }, [state, router]);

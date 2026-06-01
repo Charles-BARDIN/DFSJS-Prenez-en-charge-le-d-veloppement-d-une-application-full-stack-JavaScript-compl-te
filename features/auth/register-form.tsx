@@ -8,7 +8,8 @@ import { registerUser } from "@/features/auth/actions";
 import { FormField } from "./form-field";
 
 // Client Component : formulaire d'inscription.
-// En cas de succès, l'utilisateur est déjà connecté : on le redirige vers le fil.
+// En cas de succès, l'utilisateur est déjà connecté : on le redirige vers
+// la page d'accueil (le fil d'actualité).
 export const RegisterForm = () => {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(registerUser, null);
@@ -18,7 +19,7 @@ export const RegisterForm = () => {
 
   useEffect(() => {
     if (state?.success) {
-      router.push("/feed");
+      router.push("/");
       router.refresh();
     }
   }, [state, router]);

@@ -11,7 +11,8 @@ export const uniqueUser = () => {
   };
 };
 
-/** Inscrit un nouvel utilisateur via l'interface ; l'amène connecté sur le fil. */
+/** Inscrit un nouvel utilisateur via l'interface ; l'amène connecté sur le fil
+ * (page d'accueil). */
 export const registerNewUser = async (page: Page) => {
   const user = uniqueUser();
   await page.goto("/register");
@@ -19,6 +20,7 @@ export const registerNewUser = async (page: Page) => {
   await page.getByLabel("Adresse e-mail").fill(user.email);
   await page.getByLabel("Mot de passe").fill(user.password);
   await page.getByRole("button", { name: "S'inscrire" }).click();
-  await expect(page).toHaveURL(/\/feed/);
+  // Une fois inscrit, l'utilisateur est connecté et renvoyé sur l'accueil (le fil).
+  await expect(page).toHaveURL("/");
   return user;
 };

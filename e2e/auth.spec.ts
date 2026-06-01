@@ -6,7 +6,7 @@ test("inscription : nouvel utilisateur connecté et redirigé vers le fil", asyn
   page,
 }) => {
   await registerNewUser(page);
-  await expect(page).toHaveURL(/\/feed/);
+  await expect(page).toHaveURL("/");
   // Le fil n'est accessible que connecté : on y est bien.
   await expect(
     page.getByRole("link", { name: "Créer un article" }),
@@ -24,7 +24,7 @@ test("connexion puis déconnexion d'un compte existant", async ({ page }) => {
   await page.getByLabel("E-mail ou nom d'utilisateur").fill(user.username);
   await page.getByLabel("Mot de passe").fill(user.password);
   await page.getByRole("button", { name: "Se connecter" }).click();
-  await expect(page).toHaveURL(/\/feed/);
+  await expect(page).toHaveURL("/");
 });
 
 test("connexion refusée avec un mauvais mot de passe", async ({ page }) => {

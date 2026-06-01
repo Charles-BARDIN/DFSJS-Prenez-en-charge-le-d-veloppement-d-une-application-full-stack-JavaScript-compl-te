@@ -23,7 +23,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   // Prépare la base puis démarre l'application sur la base de test.
   webServer: {
-    command: `npm run test:e2e:db && next dev --port ${PORT}`,
+    command: `npm run test:e2e:db && npx next dev --port ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: false,
     timeout: 120_000,

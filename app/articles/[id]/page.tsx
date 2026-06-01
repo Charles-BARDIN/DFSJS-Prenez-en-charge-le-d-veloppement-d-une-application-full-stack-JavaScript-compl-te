@@ -19,7 +19,7 @@ const ArticlePage = async ({
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
-      <BackButton href="/feed" className="mb-4" />
+      <BackButton href="/" className="mb-4" />
 
       <article className="space-y-4">
         <h1 className="text-2xl font-bold break-words text-foreground">

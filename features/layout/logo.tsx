@@ -3,7 +3,7 @@ import Image from "next/image";
 
 // Logo MDD (nuage violet). Dimensions source 695x401 ; la hauteur est pilotée en CSS.
 export const Logo = ({
-  href = "/feed",
+  href = "/",
   className = "h-9",
 }: {
   href?: string;
