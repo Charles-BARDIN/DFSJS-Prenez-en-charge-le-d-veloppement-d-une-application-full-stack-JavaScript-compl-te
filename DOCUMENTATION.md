@@ -1,4 +1,4 @@
-Auteur : \[Nom et prénom de l'étudiant\]
+Auteur : Bardin Simon Charles Paul
 
 Version : 0.0.1
 
