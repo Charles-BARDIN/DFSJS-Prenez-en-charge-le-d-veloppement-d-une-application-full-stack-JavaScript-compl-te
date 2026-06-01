@@ -352,6 +352,8 @@ Synthèse critique du code à l'issue du développement et des tests.
 * **Suppression définitive** : `onDelete: Cascade` évite les enregistrements orphelins, mais un *soft delete* (`deletedAt`) serait préférable en production pour conserver l'historique plutôt que de supprimer définitivement.
 * **Secret d'authentification** : `AUTH_SECRET` est un placeholder de développement → à régénérer (`npx auth secret`) avant tout déploiement.
 * **En-tête CSP absent** : seul point retiré par l'audit Lighthouse (cf. § 3.2) ; une *Content-Security-Policy* constituerait un durcissement supplémentaire.
+* **Conformité légale** : le MVP étant déployé en interne, il ne comporte pas encore de mentions légales ni de politique de confidentialité (RGPD) ; ces éléments seront à ajouter avant toute ouverture au public, de même qu'une page de consentement si des données personnelles sont collectées.
+* **Déploiement** : l'application n'est pas déployée dans le périmètre du MVP (exécution locale). Une cible naturelle serait Vercel (éditeur de Next.js) ou un hébergement Node + PostgreSQL managé ; il faudra alors fournir les variables d'environnement de production (`DATABASE_URL`, `AUTH_SECRET` régénéré, `AUTH_URL`).
 
 **Actions correctives appliquées**
 
