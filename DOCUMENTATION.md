@@ -1,10 +1,10 @@
 Auteur : Bardin Simon Charles Paul
 
-Version : 0.0.1
+Version : 1.0.0
 
-Date : 29/05/2026
+Date : 02/06/2026
 
-**Version 0.0.1**
+**Version 1.0.0**
 
 # **Documentation et rapport du projet MDD**
 
