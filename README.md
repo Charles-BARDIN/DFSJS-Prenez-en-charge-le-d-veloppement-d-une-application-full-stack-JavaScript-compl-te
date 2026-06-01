@@ -24,8 +24,8 @@ revue technique, performance) se trouve dans [`DOCUMENTATION.md`](./DOCUMENTATIO
 ## Installation
 
 ```bash
-git clone <repository-url>
-cd P5-DFSJS
+git clone https://github.com/Charles-BARDIN/DFSJS-Prenez-en-charge-le-d-veloppement-d-une-application-full-stack-JavaScript-compl-te
+cd DFSJS-Prenez-en-charge-le-d-veloppement-d-une-application-full-stack-JavaScript-compl-te
 npm install
 ```
 
