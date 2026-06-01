@@ -24,7 +24,12 @@ Date : 29/05/2026
 4. Documentation utilisateur et supervision
    4.1 FAQ utilisateur
    4.2 Supervision et tâches déléguées à l'IA
-5. **Annexes**
+5. Annexes
+   5.1 Captures d'écran de l'UI
+   5.2 Analyse des besoins front-end
+   5.3 Définition des données
+   5.4 Rapport de couverture et de tests
+   5.5 Rapport de revue technique
 
 ---
 
@@ -437,10 +442,88 @@ Conformément à la posture de supervision attendue, quelques tâches simples on
 
 ## **5\. Annexes**
 
-Intégrez ici toutes les pièces justificatives :
+### **5.1 Captures d'écran de l'UI**
 
-* **Captures d'écran de l'UI** et vues principales.
-* **Analyse des besoins front-end** (liens avec les spécifications ou maquettes).
-* **Définition des données** (schémas Prisma, types TypeScript, règles Zod).
-* **Rapports de couverture et de tests** (exports ou impressions d'écran).
-* **Rapport de revue technique** (version complète, datée et signée si applicable).
+Captures des écrans principaux, en versions **desktop** et **mobile**, prises sur le build de production avec le compte de démonstration (`marie_dev` / `Demo#1234`).
+
+**Accueil (visiteur non connecté)**
+
+![Accueil non connecté — desktop](docs/annexes/captures/01-accueil-deconnecte-desktop.png)
+![Accueil non connecté — mobile](docs/annexes/captures/01-accueil-deconnecte-mobile.png)
+
+**Inscription**
+
+![Inscription — desktop](docs/annexes/captures/02-inscription-desktop.png)
+![Inscription — mobile](docs/annexes/captures/02-inscription-mobile.png)
+
+**Connexion**
+
+![Connexion — desktop](docs/annexes/captures/03-connexion-desktop.png)
+![Connexion — mobile](docs/annexes/captures/03-connexion-mobile.png)
+
+**Accueil connecté — fil d'actualité et tri**
+
+![Fil d'actualité — desktop](docs/annexes/captures/04-fil-accueil-desktop.png)
+![Fil d'actualité — mobile](docs/annexes/captures/04-fil-accueil-mobile.png)
+
+**Thèmes (« S'abonner » / « Déjà abonné »)**
+
+![Thèmes — desktop](docs/annexes/captures/05-themes-desktop.png)
+![Thèmes — mobile](docs/annexes/captures/05-themes-mobile.png)
+
+**Détail d'un article et commentaires**
+
+![Article — desktop](docs/annexes/captures/06-article-desktop.png)
+![Article — mobile](docs/annexes/captures/06-article-mobile.png)
+
+**Création d'un article**
+
+![Création d'article — desktop](docs/annexes/captures/07-creer-article-desktop.png)
+![Création d'article — mobile](docs/annexes/captures/07-creer-article-mobile.png)
+
+**Profil (informations et abonnements)**
+
+![Profil — desktop](docs/annexes/captures/08-profil-desktop.png)
+![Profil — mobile](docs/annexes/captures/08-profil-mobile.png)
+
+**Navigation mobile (menu déroulant)**
+
+![Menu mobile](docs/annexes/captures/09-mobile-menu.png)
+
+### **5.2 Analyse des besoins front-end**
+
+Les écrans ci-dessus correspondent aux **maquettes Figma** fournies et aux **spécifications fonctionnelles** : accès connexion/inscription depuis l'accueil, fil chronologique triable une fois connecté, page des thèmes avec abonnement, consultation et création d'articles, commentaires, gestion du profil et des abonnements. La correspondance fonctionnalité → écran est détaillée au **§ 1.2** (périmètre fonctionnel) ; les choix d'architecture front (Server Components pour la lecture, Client Components pour l'interactif, responsive mobile/desktop) sont justifiés au **§ 2.1** et **§ 2.2**.
+
+### **5.3 Définition des données**
+
+→ Détaillée au **§ 2.3** : diagramme entité-association (ERD), schéma Prisma (`prisma/schema.prisma`) et schémas Zod centralisés (`lib/validations.ts`).
+
+### **5.4 Rapport de couverture et de tests**
+
+Suite exécutée par `npm test` : **62 tests** répartis sur **11 fichiers**, tous passants. Couverture mesurée sur le périmètre de logique métier ciblé (cf. `vitest.config.ts`), générée par `npm run test:coverage` :
+
+| Indicateur | Couverture | Seuil exigé |
+| :---- | :----: | :----: |
+| Statements (instructions) | 98 % | ≥ 85 % |
+| Branches | 91,66 % | ≥ 80 % |
+| Functions (fonctions) | 92,3 % | ≥ 85 % |
+| Lines (lignes) | 97,77 % | ≥ 85 % |
+
+Captures jointes ci-dessous :
+
+**Rapport de couverture** (`npm run test:coverage`)
+
+![Rapport de couverture des tests](docs/annexes/captures/10-couverture.png)
+
+**Rapport des tests end-to-end Playwright** (6 parcours critiques, cf. **§ 3.1**)
+
+![Rapport Playwright](docs/annexes/captures/11-playwright.png)
+
+**Rapports Lighthouse** (résultats commentés au **§ 3.2**)
+
+![Lighthouse — accueil (fil)](docs/annexes/captures/12-lighthouse-accueil.png)
+![Lighthouse — thèmes](docs/annexes/captures/13-lighthouse-themes.png)
+
+### **5.5 Rapport de revue technique**
+
+→ Constitue le **§ 3.3** (points forts, dette technique, actions correctives).
