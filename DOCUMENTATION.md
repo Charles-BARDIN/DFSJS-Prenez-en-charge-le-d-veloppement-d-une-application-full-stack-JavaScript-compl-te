@@ -74,22 +74,23 @@ MDD est une application **full-stack Next.js (App Router)** : le même projet h�
 
 ```mermaid
 flowchart LR
-    UI["Client Components<br/>(pages, formulaires)"]
-    RSC["Server Components<br/>(lecture)"]
+    RSC["Server Components<br/>(pages, lecture)"]
+    UI["Client Components<br/>(formulaires, navigation)"]
     SA["Server Actions<br/>(Zod + session)"]
     AUTH["Auth.js v5<br/>(session JWT)"]
     ORM["Prisma ORM"]
     DB[("PostgreSQL")]
 
+    RSC -->|"rend"| UI
     UI -->|"appel typé"| SA
-    UI --> RSC
-    RSC -->|"requêtes"| ORM
-    SA -->|"requêtes"| ORM
+    RSC -->|"lecture"| ORM
+    SA -->|"mutation"| ORM
+    RSC -.->|"contrôle session"| AUTH
     SA -.->|"contrôle session"| AUTH
     ORM --> DB
 ```
 
-**Légende.** Les traits pleins représentent le flux de données principal (lecture via les Server Components, mutations via les Server Actions) ; le trait pointillé représente le contrôle d'authentification. La logique métier n'expose aucune API REST : les Server Actions tiennent ce rôle. Le seul Route Handler du projet est celui d'Auth.js (`/api/auth/[...nextauth]`), imposé par la librairie pour ses endpoints internes d'authentification (voir section 2.3).
+**Légende.** Les traits pleins représentent le flux principal : un Server Component (page) **rend** les Client Components, **lit** les données via Prisma, et les Client Components (formulaires) déclenchent les **mutations** via les Server Actions. Le trait pointillé représente le **contrôle d'authentification**, effectué aussi bien par les pages (`requireUser` / `getCurrentUser`) que par les Server Actions. La logique métier n'expose aucune API REST : les Server Actions tiennent ce rôle. Le seul Route Handler du projet est celui d'Auth.js (`/api/auth/[...nextauth]`), fourni par convention de la librairie ; il expose ses endpoints internes (`callback`, `csrf`, `session`…), non sollicités par les flux actuels (Credentials + JWT pilotés depuis des Server Actions) mais nécessaires dès l'ajout d'OAuth, de la session côté client ou de la vérification d'e-mail (voir section 2.3).
 
 **Organisation technique (feature-based).** Le code est regroupé par domaine métier plutôt que par type technique :
 
@@ -119,7 +120,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 | **Node.js 22 LTS** | Runtime | [docs](https://nodejs.org/docs) | Moteur d'exécution serveur | **Imposé par ORION.** |
 | **Prisma ORM** | ORM / accès BDD | [docs](https://www.prisma.io/docs) | Accès BDD typé + migrations | **Imposé par ORION** (« Prisma plutôt que des requêtes SQL brutes »). |
 | **PostgreSQL** | Base de données | [docs](https://www.postgresql.org/docs) | Stockage relationnel | **Décidé** — données fortement relationnelles + contrainte d'unicité (voir arbitrages). |
-| **Server Actions** | Couche « API » | [docs](https://nextjs.org/docs/app/getting-started/updating-data) | Interaction front/back typée et sécurisée | **Décidé** — supprime la couche HTTP ; validation + session à la frontière (voir arbitrages). |
+| **Server Actions** | Couche « API » | [docs](https://nextjs.org/docs/app/getting-started/mutating-data) | Interaction front/back typée et sécurisée | **Décidé** — supprime la couche HTTP ; validation + session à la frontière (voir arbitrages). |
 | **Auth.js v5 (NextAuth)** | Authentification | [docs](https://authjs.dev) | Sessions sécurisées | **Décidé** — Credentials + JWT, cookie persistant (voir arbitrages). |
 | **Zod** | Validation / schémas | [docs](https://zod.dev) | Valider les entrées et inférer les types | **Décidé** — schéma = source de vérité, réutilisable front/back. |
 | **bcryptjs** | Hachage mot de passe | [docs](https://www.npmjs.com/package/bcryptjs) | Stocker les mots de passe de façon sûre | **Décidé** — algorithme bcrypt en JavaScript pur, sans compilation native (voir arbitrages). |
@@ -132,26 +133,26 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 
 **Server Actions** *(vs Route Handlers REST, tRPC, GraphQL, API Express/NestJS séparée)*
 
-* *Avantages :* aucune couche de transport à écrire (routes, contrôleurs, fetchers, sérialisation JSON, DTOs) — l'action s'appelle comme une fonction depuis le composant ; typage de bout en bout natif (les types TS traversent client→serveur sans génération de code, contrairement à REST ou GraphQL) ; intégration formulaire (`useActionState`, `<form action={...}>`) fonctionnant même sans JavaScript (progressive enhancement) ; revalidation de cache intégrée (`revalidatePath` / `revalidateTag`) après mutation ; validation Zod et contrôle de session concentrés au même endroit (`'use server'`).
+* *Avantages :* aucune couche de transport à écrire (routes, contrôleurs, fetchers, sérialisation JSON, DTOs — Data Transfer Objects) — l'action s'appelle comme une fonction depuis le composant ; typage de bout en bout natif (les types TS traversent client→serveur sans génération de code, contrairement à REST ou GraphQL) ; intégration formulaire (`useActionState`, `<form action={...}>`) fonctionnant même sans JavaScript (progressive enhancement) ; revalidation de cache intégrée (`revalidatePath` / `revalidateTag`) après mutation ; validation Zod et contrôle de session concentrés au même endroit (`'use server'`).
 * *Inconvénients :* couplage fort à Next.js (non réutilisable tel quel par un client tiers ou mobile sans ajouter une API) ; pas de surface HTTP documentable/testable avec des outils REST (Supertest, Postman) ; modèle récent avec des pièges (arguments sérialisés, actions exposées comme endpoints POST → toujours valider et vérifier l'autorisation).
 * *Pourquoi ce choix :* pour un MVP interne à client unique (le front Next.js), une couche REST n'ajoute que du code et de la surface d'attaque. tRPC et GraphQL répondraient au besoin de typage mais introduisent une dépendance et un outillage disproportionnés à cette échelle ; une API séparée (Express/Nest) contredirait la stack unifiée imposée.
 
 **React Server Components** *(vs tout en Client Components / SPA classique)*
 
-* *Avantages :* le rendu et l'accès aux données se font côté serveur → moins de JavaScript envoyé au client, pas d'endpoint de lecture à exposer, secrets et connexion BDD jamais présents dans le navigateur, meilleur TTFB et SEO.
-* *Inconvénients :* frontière client/serveur à maîtriser (un Server Component ne peut pas utiliser `useState`/`onClick`) ; risque de cascades de requêtes (« waterfalls ») si mal composé ; modèle mental nouveau.
+* *Avantages :* le rendu et l'accès aux données se font côté serveur → moins de JavaScript envoyé au client, pas d'endpoint de lecture à exposer, secrets et connexion BDD jamais présents dans le navigateur ; données lues au plus près de la base (pas de cascade de requêtes navigateur → API → BDD au montage), ce qui améliore les Core Web Vitals (notamment le FCP, *First Contentful Paint*, et le LCP, *Largest Contentful Paint*) ; HTML complet rendu côté serveur, bénéfique pour le SEO (*Search Engine Optimization*).
+* *Inconvénients :* frontière client/serveur à maîtriser (un Server Component ne peut pas utiliser `useState`/`onClick`) ; risque de **cascade de requêtes côté serveur** (« waterfall ») si des Server Components imbriqués enchaînent leurs requêtes BDD en série au lieu de les paralléliser — distinct de la cascade réseau navigateur → API évitée ci-dessus ; modèle mental nouveau.
 * *Pourquoi ce choix :* les écrans de MDD sont surtout de la lecture (fil, thèmes, profil, détail d'article) → idéaux en RSC ; on isole l'interactif (formulaires, menu mobile, bouton « s'abonner ») en Client Components. Une SPA tout-client multiplierait les endpoints et le poids JS pour un faible bénéfice.
 
 **PostgreSQL** *(vs MySQL, SQLite, MongoDB)*
 
-* *Avantages :* relationnel robuste, MVCC avec verrouillage par ligne (nombreuses écritures concurrentes), typage strict, contraintes riches (FK, `UNIQUE`, `CHECK`, index partiels/fonctionnels), types avancés (UUID, `citext`, `enum`, JSONB), support Prisma le plus complet.
+* *Avantages :* relationnel robuste, MVCC (*Multi-Version Concurrency Control*) avec verrouillage par ligne (nombreuses écritures concurrentes), typage strict, contraintes riches (FK, `UNIQUE`, `CHECK`, index partiels/fonctionnels), types avancés (UUID, `citext`, `enum`, JSONB), support Prisma le plus complet.
 * *Inconvénients :* nécessite un serveur (Docker en local), un peu plus à opérer que SQLite.
 * *Pourquoi ce choix :* **SQLite écarté** — verrou d'écriture au niveau de la base (un seul writer), FK désactivées par défaut et typage laxiste → inadapté à une application web multi-utilisateurs en production (il reste excellent pour l'embarqué/le prototypage). **MongoDB écarté** — données fortement relationnelles avec jointures (le fil = articles des thèmes suivis), un SGBD relationnel est plus naturel. **MySQL ferait aussi bien le travail** ; on tranche en faveur de Postgres pour sa rigueur (contraintes/typage), le contrôle explicite de l'unicité insensible à la casse pour l'e-mail et le nom d'utilisateur (`citext` ou index `lower()`) et son intégration dans l'écosystème Next.js/Prisma.
 * *Note :* on garde **le même moteur en test et en production** (pas de SQLite pour les tests) afin d'éviter les écarts de comportement entre environnements (les fonctionnalités diffèrent, ex. les `enum` non supportés par SQLite avec Prisma).
 
 **Auth.js v5 — Credentials + JWT** *(vs auth maison jose+cookies, Lucia, Clerk/Auth0, Supabase Auth, Better Auth)*
 
-* *Avantages :* librairie auditée qui gère les points sensibles (signature et rotation des tokens, protection CSRF, cookies `httpOnly`/`secure`, callbacks), protection des routes via le *proxy*, intégration Next.js native.
+* *Avantages :* librairie auditée qui gère les points sensibles (signature et rotation des tokens, protection CSRF — *Cross-Site Request Forgery*, cookies `httpOnly`/`secure`, callbacks), protection des routes via le *proxy*, intégration Next.js native.
 * *Inconvénients :* API v5 récente et documentation Credentials moins fournie que pour les providers OAuth ; comportement « boîte noire » à comprendre pour le défendre ; révocation de session moins immédiate qu'avec des sessions en base (un JWT reste valide jusqu'à son expiration).
 * *Pourquoi ce choix :* on ne réimplémente pas soi-même la sécurité (source d'erreurs). La stratégie **JWT** (cookie signé) assure la persistance entre sessions **sans table ni store serveur** → modèle et infrastructure allégés, cohérent avec la consigne « ne pas surcomplexifier la sécurité ». Le provider **Credentials** correspond au besoin (e-mail/nom d'utilisateur + mot de passe, pas d'OAuth tiers). Les solutions SaaS (Clerk, Auth0) sont écartées (dépendance externe et données utilisateurs hors de notre base pour un simple MVP interne) ; une auth maison ou Lucia donnerait plus de contrôle mais beaucoup plus de code de sécurité à écrire et à défendre.
 * *Note :* pour la révocation, on peut maintenir des durées de session courtes ; passer à des sessions en base reste une évolution possible si une révocation immédiate devient nécessaire.
@@ -165,7 +166,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 **bcryptjs** *(vs bcrypt natif, argon2, scrypt)*
 
 * *Avantages :* algorithme bcrypt (dérivation lente, sel intégré, facteur de coût ajustable → résiste au brute-force) en **JavaScript pur**, donc **aucune compilation native** (`node-gyp`) → installation fiable sur tout environnement, compatible avec les tests (Vitest) et le edge runtime ; API simple (`hash` / `compare`).
-* *Inconvénients :* légèrement plus lent que l'implémentation native `bcrypt` ; argon2id est aujourd'hui le premier choix recommandé par l'OWASP (résistance « mémoire-hard ») ; bcrypt tronque au-delà de 72 octets.
+* *Inconvénients :* légèrement plus lent que l'implémentation native `bcrypt` ; argon2id est aujourd'hui le premier choix recommandé par l'OWASP (résistance « mémoire-hard » : chaque calcul exige beaucoup de mémoire, ce qui empêche les attaquants de paralléliser massivement le cassage de mots de passe sur GPU ou matériel dédié — là où bcrypt, coûteux uniquement en calcul, y est plus exposé) ; bcrypt tronque au-delà de 72 octets.
 * *Pourquoi ce choix :* le paquet natif `bcrypt` impose une compilation native parfois capricieuse selon la machine ; `bcryptjs` offre le même algorithme sans cette contrainte, ce qui simplifie l'installation et les tests pour un MVP. argon2 est documenté comme axe d'amélioration. (Règle non négociable : jamais de mot de passe en clair ni de hash rapide type SHA-256.)
 
 **Tailwind CSS 4 + shadcn/ui** *(conservé du starter — vs CSS Modules, MUI, Chakra UI, styled-components)*
@@ -178,7 +179,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 
 * *Avantages :* Vitest réutilise la chaîne Vite/ESM/TS du projet (configuration quasi nulle, démarrage rapide, mode watch) ; React Testing Library teste les composants au plus près de l'usage (DOM, accessibilité) ; Playwright couvre l'e2e multi-navigateurs de façon fiable (auto-wait) sur les parcours critiques.
 * *Inconvénients :* tests e2e plus lents et plus fragiles à maintenir ; trois outils à configurer.
-* *Pourquoi ce choix :* couvre les trois niveaux attendus (unitaire, intégration, e2e). Jest est écarté car Vitest s'intègre mieux à un projet Vite/ESM. **Supertest est exclu techniquement** : il teste des endpoints HTTP, absents ici puisque les Server Actions n'exposent pas d'API REST → on teste les Server Actions directement en intégration (Vitest, en appelant la fonction sur une base de test) et les parcours via Playwright (qui exerce de fait la chaîne HTTP du navigateur).
+* *Pourquoi ce choix :* couvre les trois niveaux attendus (unitaire, intégration, e2e). Jest est écarté car Vitest s'intègre mieux à un projet Vite/ESM. **Playwright est préféré à Cypress** pour l'e2e : il pilote le navigateur depuis l'extérieur (et non depuis l'intérieur de la page comme Cypress), ce qui le rend plus rapide et plus stable grâce à l'`auto-wait` intégré ; il offre un vrai support multi-navigateurs (Chromium, Firefox, WebKit) et un parallélisme inclus, là où Cypress réserve une partie de ces fonctionnalités à son offre payante. **Supertest est exclu techniquement** : il teste des endpoints HTTP, absents ici puisque les Server Actions n'exposent pas d'API REST → on teste les Server Actions directement en intégration (Vitest, en appelant la fonction sur une base de test) et les parcours via Playwright (qui exerce de fait la chaîne HTTP du navigateur).
 
 **Architecture feature-based** *(vs layer-based par type technique, atomic design)*
 
@@ -196,7 +197,7 @@ Les éléments **imposés** par les contraintes techniques ORION sont indiqués 
 
 > Cette section décrit les Server Actions telles qu'**implémentées**. Le tableau en donne une vue fonctionnelle ; les signatures exactes figurent dans le code des features (`features/<domaine>/actions.ts` et `queries.ts`).
 
-La logique métier est exposée via des **Server Actions**. Le projet ne comporte qu'**un seul Route Handler**, celui d'Auth.js (`app/api/auth/[...nextauth]/route.ts`, méthodes `GET` et `POST`) : il est **imposé par la librairie** pour ses endpoints internes (connexion, déconnexion, `callback`, `csrf`, `session`, `providers`) et ne contient aucune logique métier. Convention de retour homogène pour les mutations : `ActionResult<T> = { success: true; data: T } | { success: false; error: string; fieldErrors?: Record<string, string> }`.
+La logique métier est exposée via des **Server Actions**. Le projet ne comporte qu'**un seul Route Handler**, celui d'Auth.js (`app/api/auth/[...nextauth]/route.ts`, méthodes `GET` et `POST`) : il est **fourni par convention** de la librairie pour exposer ses endpoints internes (`callback`, `csrf`, `session`, `providers`) et ne contient aucune logique métier. Dans la configuration actuelle (provider Credentials, session JWT), la connexion et la déconnexion sont déclenchées **côté serveur** via les Server Actions (`signIn` / `signOut` d'Auth.js) ; ce Route Handler n'est donc pas directement sollicité par les flux existants, mais il reste requis dès l'ajout d'un provider OAuth, d'une session lue côté client (`useSession`) ou de la vérification d'e-mail. Convention de retour homogène pour les mutations : `ActionResult<T> = { success: true; data: T } | { success: false; error: string; fieldErrors?: Record<string, string> }`.
 
 | Server Action | Type | Description | Retour / Réponse |
 | :---- | :---- | :---- | :---- |
@@ -297,7 +298,7 @@ La performance n'a pas fait l'objet d'une correction *a posteriori* : les choix 
 
 * **Rendu serveur par défaut (React Server Components).** Les écrans de lecture (fil, thèmes, profil, détail d'article) sont des Server Components : le HTML est rendu côté serveur et **aucun JavaScript de composant n'est envoyé** pour ces pages. Seuls les éléments interactifs sont des Client Components (8 fichiers `'use client'` : formulaires, menu mobile, navigation), ce qui réduit la taille du bundle hydraté.
 * **Pas de couche API REST.** Les Server Actions remplacent les endpoints HTTP : pas de fetchers ni de sérialisation côté client à charger, et les données de lecture sont obtenues directement pendant le rendu serveur (pas de cascade de requêtes réseau au montage).
-* **Police optimisée (`next/font`).** La police Inter est auto-hébergée via `next/font/google` : pas de requête vers Google Fonts, fichiers servis depuis l'origine et **sans décalage de mise en page** (CLS) grâce au `font-display` géré par Next.
+* **Police optimisée (`next/font`).** La police Inter est auto-hébergée via `next/font/google` : pas de requête vers Google Fonts, fichiers servis depuis l'origine et **sans décalage de mise en page** (CLS, *Cumulative Layout Shift*). `next/font` génère une police de secours dont les métriques (largeur, hauteur de ligne) sont calées sur celles d'Inter et gère le `font-display` : au moment où Inter remplace la police de secours, les dimensions sont quasi identiques, donc le texte ne « saute » pas.
 * **Images optimisées (`next/image`).** Le logo et les visuels (pages d'accueil et d'authentification) passent par `next/image` (formats modernes, dimensionnement, *lazy loading*) → pas d'images surdimensionnées qui pénaliseraient le LCP.
 * **Index de base de données.** Les requêtes fréquentes sont indexées dans le schéma Prisma : `@@index([createdAt])` (tri chronologique du fil), `@@index([topicId])` (filtrage par thème), `@@index([articleId])` (commentaires d'un article), plus les contraintes `@unique` (e-mail, nom d'utilisateur, titre de thème) et `@@unique([userId, topicId])` (abonnements). Le tri et le filtrage ne provoquent donc pas de parcours de table complet.
 * **Build de production.** L'audit ci-dessous est réalisé sur un build de production (`next build` + `next start`), seul représentatif des performances réelles (le mode développement n'est pas optimisé).
@@ -315,7 +316,13 @@ Audit réalisé avec **Lighthouse 13.0.2** (DevTools Chrome) sur le build de pro
 
 Les deux pages obtiennent **100/100 en Performance, Accessibilité et SEO**, et **96/100 en Bonnes pratiques**. Ces résultats valident les choix d'optimisation décrits ci-dessus : rendu serveur limitant le JavaScript client, police et images optimisées (pas de décalage de mise en page ni de ressources bloquantes) et bonnes pratiques d'accessibilité (libellés ARIA, titres et descriptions des composants interactifs, contrastes). Les rapports complets sont joints en annexe (§ 5).
 
-**Analyse du 96/100 en Bonnes pratiques.** Le seul point retiré provient de l'audit *« Issues were logged in the Issues panel in Chrome DevTools »*, dont l'unique entrée est de type **« Content Security Policy »** : l'application ne définit pas d'en-tête **CSP**, que Chrome signale comme protection recommandée contre les attaques XSS. C'est un **durcissement de sécurité supplémentaire**, distinct des protections déjà en place (cf. § 3.3) ; son absence n'introduit pas de faille mais prive d'une défense en profondeur côté navigateur. **Correctif possible :** définir un en-tête `Content-Security-Policy` (via `headers()` dans `next.config` ou le *proxy*), idéalement avec un *nonce* pour les scripts. Ce réglage n'a pas été activé dans le périmètre du MVP (il demande un paramétrage et des tests pour ne pas casser le chargement des ressources) et constitue un axe d'amélioration identifié.
+**Analyse du 96/100 en Bonnes pratiques.** Le seul point retiré provient de l'audit *« Issues were logged in the Issues panel in Chrome DevTools »*, dont l'unique entrée est de type **« Content Security Policy »** : l'application ne définit pas d'en-tête **CSP**, que Chrome signale comme protection recommandée contre les attaques XSS (*Cross-Site Scripting*, injection de code malveillant dans la page). C'est un **durcissement de sécurité supplémentaire**, distinct des protections déjà en place (cf. § 3.3) ; son absence n'introduit pas de faille mais prive d'une défense en profondeur côté navigateur.
+
+**Rôle de l'en-tête.** Une CSP est un en-tête HTTP renvoyé avec chaque page qui déclare au navigateur la **liste blanche des sources de contenu autorisées** (scripts, images, styles…) ; tout ce qui n'y figure pas est bloqué. Concrètement, même si un script malveillant parvenait à être injecté dans la page (faille XSS), le navigateur refuserait de l'exécuter car sa source ne serait pas autorisée.
+
+**Rôle du *nonce*.** Next.js injecte des scripts *inline* (nécessaires à l'hydratation). Une CSP stricte bloque par défaut tout script inline ; les autoriser globalement (`'unsafe-inline'`) annulerait la protection. Le *nonce* (« number used once ») résout ce conflit : le serveur génère à **chaque requête** un jeton aléatoire qu'il place à la fois dans l'en-tête CSP et sur ses propres balises `<script>`. Le navigateur n'exécute alors que les scripts portant ce jeton : les scripts légitimes de Next.js (taggés) passent, un script injecté (qui ne peut pas deviner un nonce aléatoire renouvelé à chaque chargement) est rejeté.
+
+**Correctif possible :** définir cet en-tête `Content-Security-Policy` (via `headers()` dans `next.config` pour une politique statique, ou via le *proxy* si l'on veut un *nonce* régénéré à chaque requête). Ce réglage n'a pas été activé dans le périmètre du MVP (il demande un paramétrage et des tests pour ne pas casser le chargement des ressources) et constitue un axe d'amélioration identifié.
 
 > Procédure de reproduction : `npm run build` puis `npm run start`, se connecter, puis lancer Lighthouse (onglet *Lighthouse* des DevTools Chrome, ou `npx lighthouse <url>`) sur la page voulue.
 
@@ -345,7 +352,7 @@ Synthèse critique du code à l'issue du développement et des tests.
 **Points à améliorer / dette technique**
 
 * **Hachage** : `bcryptjs` a été retenu pour éviter la compilation native ; argon2id est aujourd'hui recommandé par l'OWASP → axe d'amélioration.
-* **Session JWT** : la révocation n'est pas immédiate (un token reste valide jusqu'à son expiration) → durées courtes, ou passage à des sessions en base si une révocation instantanée devient nécessaire.
+* **Session JWT** : la durée de session n'est pas configurée explicitement, elle vaut donc la valeur par défaut d'Auth.js (**30 jours**, glissants). La révocation n'est pas immédiate (un token reste valide jusqu'à son expiration) → pour une révocation plus rapide, réduire `maxAge` dans `auth.config.ts` ou passer à des sessions en base si une révocation instantanée devient nécessaire.
 * **Fil d'actualité sans pagination** : tous les articles des thèmes suivis sont chargés → à paginer si le volume augmente.
 * **Périmètre de couverture** : concentré sur la logique métier ; les pages et les actions d'authentification ne sont pas testées unitairement (elles sont exercées en e2e) — choix assumé, à compléter au besoin.
 * **Messages d'erreur serveur** volontairement génériques (pas de fuite d'information) : un mapping plus fin améliorerait le retour utilisateur.
