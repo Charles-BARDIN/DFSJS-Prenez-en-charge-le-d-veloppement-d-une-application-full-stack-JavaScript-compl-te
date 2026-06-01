@@ -5,14 +5,13 @@ import { BackButton } from "@/components/back-button";
 type AuthCardProps = {
   title: string;
   children: React.ReactNode;
-  footer: React.ReactNode;
 };
 
 /**
  * Mise en page commune aux écrans de connexion et d'inscription :
  * flèche de retour, logo, titre, formulaire et pied de page, centrés.
  */
-export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
+export const AuthCard = ({ title, children }: AuthCardProps) => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm">
@@ -32,8 +31,6 @@ export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
           </div>
 
           {children}
-
-          <p className="text-center text-sm text-muted-foreground">{footer}</p>
         </div>
       </div>
     </main>
