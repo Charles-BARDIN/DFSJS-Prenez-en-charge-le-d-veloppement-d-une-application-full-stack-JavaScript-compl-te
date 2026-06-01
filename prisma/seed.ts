@@ -59,6 +59,50 @@ const demoAuthor = {
   username: "marie_dev",
 };
 
+/** Second compte de démonstration, pour des commentaires d'un autre utilisateur. */
+const demoCommenter = {
+  email: "paul.dev@mdd.local",
+  username: "paul_dev",
+};
+
+/** Thèmes auxquels l'auteur de démo est abonné (titres uniques). */
+const demoSubscriptions = ["JavaScript", "TypeScript", "React", "Next.js"];
+
+/**
+ * Commentaires de démonstration. `author` vaut "marie" (l'auteur de démo) ou
+ * "paul" (le second compte) ; `articleId` référence un article du seed.
+ */
+const comments = [
+  {
+    id: "seed-comment-1",
+    articleId: "seed-article-js",
+    author: "paul",
+    content:
+      "Merci pour cet article, l'exemple du compteur rend les closures beaucoup plus claires.",
+  },
+  {
+    id: "seed-comment-2",
+    articleId: "seed-article-js",
+    author: "marie",
+    content:
+      "Avec plaisir ! N'hésite pas si tu veux que je détaille le cas des closures dans une boucle.",
+  },
+  {
+    id: "seed-comment-3",
+    articleId: "seed-article-react",
+    author: "paul",
+    content:
+      "Le coup des dépendances manquantes dans useEffect m'a déjà joué des tours. Bon rappel.",
+  },
+  {
+    id: "seed-comment-4",
+    articleId: "seed-article-next",
+    author: "paul",
+    content:
+      "Les Server Actions simplifient vraiment le code, fini les routes d'API pour le moindre formulaire.",
+  },
+];
+
 const articles = [
   {
     id: "seed-article-js",
@@ -114,12 +158,17 @@ async function main() {
     });
   }
 
-  // Auteur de démonstration (mot de passe haché, compte utilisable).
+  // Comptes de démonstration (mot de passe haché, comptes utilisables).
   const password = await bcrypt.hash("Demo#1234", 10);
   const author = await prisma.user.upsert({
     where: { email: demoAuthor.email },
     update: {},
     create: { ...demoAuthor, password },
+  });
+  const commenter = await prisma.user.upsert({
+    where: { email: demoCommenter.email },
+    update: {},
+    create: { ...demoCommenter, password },
   });
 
   for (const article of articles) {
@@ -141,8 +190,34 @@ async function main() {
     });
   }
 
+  // Abonnements de l'auteur de démo (pour peupler son fil d'actualité).
+  for (const title of demoSubscriptions) {
+    const topic = await prisma.topic.findUnique({ where: { title } });
+    if (!topic) continue;
+
+    await prisma.subscription.upsert({
+      where: { userId_topicId: { userId: author.id, topicId: topic.id } },
+      update: {},
+      create: { userId: author.id, topicId: topic.id },
+    });
+  }
+
+  // Commentaires de démonstration sur quelques articles.
+  for (const comment of comments) {
+    await prisma.comment.upsert({
+      where: { id: comment.id },
+      update: {},
+      create: {
+        id: comment.id,
+        content: comment.content,
+        articleId: comment.articleId,
+        authorId: comment.author === "marie" ? author.id : commenter.id,
+      },
+    });
+  }
+
   console.log(
-    `Seed terminé : ${topics.length} thèmes, 1 auteur de démo et ${articles.length} articles garantis en base.`,
+    `Seed terminé : ${topics.length} thèmes, 2 comptes de démo, ${articles.length} articles, ${demoSubscriptions.length} abonnements et ${comments.length} commentaires garantis en base.`,
   );
 }
 
